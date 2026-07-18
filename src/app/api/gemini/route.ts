@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextRequest, NextResponse } from "next/server";
+import { AIDocumentContext } from "@/types";
 
 const ai = new GoogleGenAI({
     apiKey: process.env.GEMINI_API_KEY!,
@@ -12,8 +13,10 @@ type Action =
     | "title"
     | "custom";
 
-const prompts: Record<Action, (text: string, command?: string) => string> = {
-    improve: (text) => `
+const prompts: Record<Action, (text: string, context?: AIDocumentContext, command?: string) => string> = {
+    improve: (text, context) => {
+        const docContent = context ? (context.selectedText || context.content) : text;
+        return `
 You are an expert document editor.
 
 Improve the following document by:
@@ -25,18 +28,24 @@ Improve the following document by:
 Return ONLY the improved document in Markdown.
 
 Document:
-${text}
-`,
+${docContent}
+`;
+    },
 
-    rewrite: (text) => `
+    rewrite: (text, context) => {
+        const docContent = context ? (context.selectedText || context.content) : text;
+        return `
 Rewrite the following document in a professional and business-friendly tone.
 
 Return only the rewritten document.
 
-${text}
-`,
+${docContent}
+`;
+    },
 
-    summarize: (text) => `
+    summarize: (text, context) => {
+        const docContent = context ? (context.selectedText || context.content) : text;
+        return `
 Summarize the following document.
 
 Return:
@@ -45,26 +54,68 @@ Return:
 - Estimated Reading Time
 
 Document:
-${text}
-`,
+${docContent}
+`;
+    },
 
-    title: (text) => `
-Generate one short professional title.
+    title: (text, context) => {
+        const ctx = context || {
+            template: null,
+            title: "",
+            content: text,
+            wordCount: text ? text.split(/\s+/).length : 0
+        };
 
-Return ONLY the title.
+        const targetContent = ctx.selectedText && ctx.selectedText.trim() ? ctx.selectedText : ctx.content;
+        
+        let templateGuideline = "Generate concise and professional document titles.";
+        if (ctx.template === "professional_resume") {
+            templateGuideline = "Generate ATS-friendly job titles suitable for a professional resume header.";
+        } else if (ctx.template === "business_letter") {
+            templateGuideline = "Generate professional subject lines or titles suitable for a formal business letter.";
+        } else if (ctx.template === "project_report") {
+            templateGuideline = "Generate concise, descriptive report titles suitable for a formal project document.";
+        } else if (ctx.template === "cover_letter") {
+            templateGuideline = "Generate recruiter-friendly titles or subject headers suitable for a cover letter.";
+        }
 
-${text}
-`,
+        return `
+You are an expert document editor. 
+${templateGuideline}
 
-    custom: (text, command) => `
+Context details:
+- Current Title: ${ctx.title || "None"}
+- Template Type: ${ctx.template || "Standard"}
+- Word Count: ${ctx.wordCount || 0}
+${ctx.selectedText ? "- Generated based on this selected text snippet:" : "- Generated based on the full document content:"}
+
+Document Content:
+"""
+${targetContent}
+"""
+
+Instructions:
+1. Generate exactly 5 ranked title suggestions.
+2. Each suggestion must be under 10 words.
+3. Output the titles separated by newlines (one title per line).
+4. Do NOT include numbers (e.g., do NOT start lines with "1." or "1)").
+5. Do NOT include markdown styling (no bold, no italics, no quotes).
+6. Do NOT write any explanations, introductory text, or conclusion. Output ONLY the raw titles.
+`;
+    },
+
+    custom: (text, context, command) => {
+        const docContent = context ? (context.selectedText || context.content) : text;
+        return `
 Instruction:
 
 ${command}
 
 Document:
 
-${text}
-`,
+${docContent}
+`;
+    },
 };
 
 export async function POST(req: NextRequest) {
@@ -74,23 +125,16 @@ export async function POST(req: NextRequest) {
         const {
             action,
             text,
+            context,
             command,
         }: {
             action: Action;
-            text: string;
+            text?: string;
+            context?: AIDocumentContext;
             command?: string;
         } = body;
 
-        if (!text) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    error: "Document text is required.",
-                },
-                { status: 400 }
-            );
-        }
-
+        const docText = context?.content || text || "";
         const promptBuilder = prompts[action];
 
         if (!promptBuilder) {
@@ -105,7 +149,7 @@ export async function POST(req: NextRequest) {
 
         const response = await ai.models.generateContent({
             model: "gemini-3.5-flash",
-            contents: promptBuilder(text, command),
+            contents: promptBuilder(docText, context, command),
         });
 
         return NextResponse.json({

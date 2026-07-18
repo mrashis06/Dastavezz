@@ -1,147 +1,392 @@
+/* ==========================================================================
+   DASTAVEZZ — DESIGN TOKEN SYSTEM
+   Premium dual-mode design tokens: Light + Dark
+   Inspired by: Linear, Notion, Vercel, Raycast, GitHub, VS Code
+   ========================================================================== */
+
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
+@custom-variant dark (&:is(.dark *));
+
+/* ── Global theme transition ───────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+  transition-duration: 180ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Disable transitions on elements that shouldn't animate */
+.no-transition,
+.no-transition * {
+  transition: none !important;
+}
+
+/* ── LIGHT MODE (default) ──────────────────────────────────────────────── */
 :root {
-  /* Dark SaaS Dashboard Theme (Default) */
-  --background: 224 71% 4%;
-  --foreground: 210 40% 98%;
-  
-  --card: 224 71% 6%;
-  --card-foreground: 210 40% 98%;
-  
-  --popover: 224 71% 4%;
-  --popover-foreground: 210 40% 98%;
-  
-  --primary: 263 70% 50%;
-  --primary-foreground: 210 40% 98%;
-  
-  --secondary: 215 28% 17%;
-  --secondary-foreground: 210 40% 98%;
-  
-  --muted: 215 28% 12%;
-  --muted-foreground: 215 16% 70%;
-  
-  --accent: 216 34% 17%;
-  --accent-foreground: 210 40% 98%;
-  
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-  
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 263 70% 50%;
-  
-  --radius: 0.75rem;
+  /* ── Shadcn / Radix required tokens ── */
+  --background:       0 0% 100%;
+  --foreground:       222 47% 8%;
 
-  /* Custom Glow Colors */
-  --glow-purple: 263 70% 50%;
-  --glow-blue: 210 100% 50%;
+  --card:             0 0% 100%;
+  --card-foreground:  222 47% 8%;
+
+  --popover:          0 0% 100%;
+  --popover-foreground: 222 47% 8%;
+
+  --primary:          222 47% 8%;
+  --primary-foreground: 0 0% 98%;
+
+  --secondary:        220 14% 96%;
+  --secondary-foreground: 222 47% 14%;
+
+  --muted:            220 14% 96%;
+  --muted-foreground: 220 9% 46%;
+
+  --accent:           220 14% 96%;
+  --accent-foreground: 222 47% 14%;
+
+  --destructive:      0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border:           220 13% 91%;
+  --input:            220 13% 91%;
+  --ring:             263 70% 50%;
+
+  --radius: 0.625rem;
+
+  /* ── Sidebar ── */
+  --sidebar:                  220 14% 97%;
+  --sidebar-foreground:       222 47% 11%;
+  --sidebar-primary:          263 70% 50%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent:           220 14% 94%;
+  --sidebar-accent-foreground: 222 47% 14%;
+  --sidebar-border:           220 13% 91%;
+  --sidebar-ring:             263 70% 50%;
+
+  /* ── Dastavezz semantic surface tokens ── */
+  --ds-bg-base:       255 255 255;         /* Page background */
+  --ds-bg-surface:    248 249 252;         /* Sections, sidebars */
+  --ds-bg-card:       255 255 255;         /* Cards */
+  --ds-bg-elevated:   255 255 255;         /* Dropdowns, floating */
+  --ds-bg-overlay:    255 255 255;         /* Dialogs */
+  --ds-bg-inset:      245 246 250;         /* Input fields, inset areas */
+
+  --ds-border:        rgba(0,0,0,0.08);
+  --ds-border-strong: rgba(0,0,0,0.14);
+  --ds-divider:       rgba(0,0,0,0.05);
+
+  --ds-text-primary:  11 17 32;
+  --ds-text-secondary: 100 116 139;
+  --ds-text-muted:    148 163 184;
+  --ds-text-placeholder: 203 213 225;
+
+  --ds-brand:         124 58 237;          /* Violet-600 */
+  --ds-brand-hover:   109 40 217;
+  --ds-brand-muted:   237 233 254;
+
+  --ds-success:       16 185 129;
+  --ds-warning:       245 158 11;
+  --ds-danger:        239 68 68;
+  --ds-info:          59 130 246;
+
+  --ds-scrollbar:     rgba(0,0,0,0.12);
+  --ds-scrollbar-hover: rgba(0,0,0,0.22);
+  --ds-selection:     rgba(124,58,237,0.15);
+
+  --ds-shadow-sm:     0 1px 2px rgba(0,0,0,0.05);
+  --ds-shadow:        0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --ds-shadow-md:     0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.04);
+  --ds-shadow-lg:     0 10px 15px rgba(0,0,0,0.06), 0 4px 6px rgba(0,0,0,0.03);
+  --ds-shadow-xl:     0 20px 25px rgba(0,0,0,0.06), 0 10px 10px rgba(0,0,0,0.02);
 }
 
+/* ── DARK MODE ─────────────────────────────────────────────────────────── */
+/*
+   Dark mode surface hierarchy (layered, not flat):
+   --ds-bg-base      → #0a0a0c  (deepest — page background)
+   --ds-bg-surface   → #111114  (slightly lighter — nav, sidebar, section bg)
+   --ds-bg-card      → #18181d  (cards, list rows)
+   --ds-bg-elevated  → #1e1e24  (dropdowns, floating panels, tooltips)
+   --ds-bg-overlay   → #222228  (dialogs, modals)
+   --ds-bg-inset     → #141418  (input fields, code blocks, inset areas)
+*/
+.dark {
+  /* ── Shadcn / Radix required tokens ── */
+  --background:       0 0% 6%;
+  --foreground:       210 40% 95%;
+
+  --card:             240 6% 11%;
+  --card-foreground:  210 40% 95%;
+
+  --popover:          240 6% 13%;
+  --popover-foreground: 210 40% 95%;
+
+  --primary:          210 40% 92%;
+  --primary-foreground: 240 6% 8%;
+
+  --secondary:        240 5% 17%;
+  --secondary-foreground: 210 40% 92%;
+
+  --muted:            240 5% 17%;
+  --muted-foreground: 240 4% 58%;
+
+  --accent:           240 5% 17%;
+  --accent-foreground: 210 40% 92%;
+
+  --destructive:      0 72% 51%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border:           240 5% 18%;
+  --input:            240 5% 18%;
+  --ring:             263 70% 62%;
+
+  /* ── Sidebar ── */
+  --sidebar:                  240 6% 8%;
+  --sidebar-foreground:       210 40% 90%;
+  --sidebar-primary:          263 70% 62%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent:           240 5% 17%;
+  --sidebar-accent-foreground: 210 40% 90%;
+  --sidebar-border:           240 5% 16%;
+  --sidebar-ring:             263 70% 62%;
+
+  /* ── Dastavezz semantic surface tokens ── */
+  --ds-bg-base:       10 10 12;
+  --ds-bg-surface:    17 17 20;
+  --ds-bg-card:       24 24 29;
+  --ds-bg-elevated:   30 30 36;
+  --ds-bg-overlay:    34 34 40;
+  --ds-bg-inset:      20 20 24;
+
+  --ds-border:        rgba(255,255,255,0.07);
+  --ds-border-strong: rgba(255,255,255,0.11);
+  --ds-divider:       rgba(255,255,255,0.04);
+
+  --ds-text-primary:  241 240 243;
+  --ds-text-secondary: 161 161 170;
+  --ds-text-muted:    113 113 122;
+  --ds-text-placeholder: 71 71 80;
+
+  --ds-brand:         139 92 246;          /* Violet-500 (slightly brighter for dark) */
+  --ds-brand-hover:   124 58 237;
+  --ds-brand-muted:   46 16 101;
+
+  --ds-success:       52 211 153;
+  --ds-warning:       251 191 36;
+  --ds-danger:        248 113 113;
+  --ds-info:          96 165 250;
+
+  --ds-scrollbar:     rgba(255,255,255,0.1);
+  --ds-scrollbar-hover: rgba(255,255,255,0.18);
+  --ds-selection:     rgba(139,92,246,0.2);
+
+  --ds-shadow-sm:     0 1px 2px rgba(0,0,0,0.4);
+  --ds-shadow:        0 1px 3px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.3);
+  --ds-shadow-md:     0 4px 6px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3);
+  --ds-shadow-lg:     0 10px 15px rgba(0,0,0,0.45), 0 4px 6px rgba(0,0,0,0.3);
+  --ds-shadow-xl:     0 20px 25px rgba(0,0,0,0.5), 0 10px 10px rgba(0,0,0,0.3);
+}
+
+/* ── @theme mapping ────────────────────────────────────────────────────── */
 @theme {
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
-  
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
+  --color-background:                   hsl(var(--background));
+  --color-foreground:                   hsl(var(--foreground));
+  --color-card:                         hsl(var(--card));
+  --color-card-foreground:              hsl(var(--card-foreground));
+  --color-popover:                      hsl(var(--popover));
+  --color-popover-foreground:           hsl(var(--popover-foreground));
+  --color-primary:                      hsl(var(--primary));
+  --color-primary-foreground:           hsl(var(--primary-foreground));
+  --color-secondary:                    hsl(var(--secondary));
+  --color-secondary-foreground:         hsl(var(--secondary-foreground));
+  --color-muted:                        hsl(var(--muted));
+  --color-muted-foreground:             hsl(var(--muted-foreground));
+  --color-accent:                       hsl(var(--accent));
+  --color-accent-foreground:            hsl(var(--accent-foreground));
+  --color-destructive:                  hsl(var(--destructive));
+  --color-destructive-foreground:       hsl(var(--destructive-foreground));
+  --color-border:                       hsl(var(--border));
+  --color-input:                        hsl(var(--input));
+  --color-ring:                         hsl(var(--ring));
+
+  --radius-lg:  var(--radius);
+  --radius-md:  calc(var(--radius) - 2px);
+  --radius-sm:  calc(var(--radius) - 4px);
+  --radius-xl:  calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
 }
 
-body {
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-  overflow-x: hidden;
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: var(--font-sans);
+
+  --color-sidebar-ring:                 hsl(var(--sidebar-ring));
+  --color-sidebar-border:               hsl(var(--sidebar-border));
+  --color-sidebar-accent-foreground:    hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-accent:               hsl(var(--sidebar-accent));
+  --color-sidebar-primary-foreground:   hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-primary:              hsl(var(--sidebar-primary));
+  --color-sidebar-foreground:           hsl(var(--sidebar-foreground));
+  --color-sidebar:                      hsl(var(--sidebar));
+  --color-ring:                         hsl(var(--ring));
+  --color-input:                        hsl(var(--input));
+  --color-border:                       hsl(var(--border));
+  --color-destructive:                  hsl(var(--destructive));
+  --color-accent-foreground:            hsl(var(--accent-foreground));
+  --color-accent:                       hsl(var(--accent));
+  --color-muted-foreground:             hsl(var(--muted-foreground));
+  --color-muted:                        hsl(var(--muted));
+  --color-secondary-foreground:         hsl(var(--secondary-foreground));
+  --color-secondary:                    hsl(var(--secondary));
+  --color-primary-foreground:           hsl(var(--primary-foreground));
+  --color-primary:                      hsl(var(--primary));
+  --color-popover-foreground:           hsl(var(--popover-foreground));
+  --color-popover:                      hsl(var(--popover));
+  --color-card-foreground:              hsl(var(--card-foreground));
+  --color-card:                         hsl(var(--card));
+  --color-foreground:                   hsl(var(--foreground));
+  --color-background:                   hsl(var(--background));
 }
 
-/* Glassmorphism Classes */
-.glass-panel {
-  background: rgba(10, 11, 18, 0.7);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+/* ── Base layer ────────────────────────────────────────────────────────── */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    overflow-x: hidden;
+  }
+  html {
+    @apply font-sans;
+  }
+
+  /* Text selection */
+  ::selection {
+    background: var(--ds-selection);
+    color: inherit;
+  }
 }
 
-.glass-card {
-  background: rgba(15, 17, 28, 0.4);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.glass-card:hover {
-  background: rgba(20, 24, 40, 0.6);
-  border-color: rgba(139, 92, 246, 0.3);
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
-}
-
-/* Custom Scrollbar for Workspace Panels */
+/* ── Scrollbars ────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
-
 ::-webkit-scrollbar-track {
   background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--ds-scrollbar);
   border-radius: 9999px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--ds-scrollbar-hover);
 }
 
-/* A4 Page Simulator Sheet */
+/* ── A4 Document sheet — ALWAYS white (never inverted) ──────────────────── */
 .a4-sheet {
-  background-color: #ffffff;
-  color: #1a1a1a;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.04),
+    0 8px 20px rgba(0, 0, 0, 0.12),
+    0 24px 48px rgba(0, 0, 0, 0.08);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  transition: all 0.2s ease-in-out;
+  transition: box-shadow 0.2s ease;
   position: relative;
 }
 
-/* Document Themes within A4 Sheet */
-.doc-theme-professional {
-  font-family: 'Inter', sans-serif;
-}
-.doc-theme-minimal {
-  font-family: 'Courier New', Courier, monospace;
-}
-.doc-theme-academic {
-  font-family: 'Georgia', serif;
+/* In dark mode, the paper stands out against the dark workspace */
+.dark .a4-sheet {
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.5),
+    0 8px 20px rgba(0, 0, 0, 0.6),
+    0 24px 48px rgba(0, 0, 0, 0.4);
 }
 
-/* Subtle AI glow animation */
+/* ── Document typography themes ─────────────────────────────────────────── */
+.doc-theme-professional { font-family: 'Inter', sans-serif; }
+.doc-theme-minimal      { font-family: 'Courier New', Courier, monospace; }
+.doc-theme-academic     { font-family: 'Georgia', serif; }
+
+/* ── Page break ─────────────────────────────────────────────────────────── */
+.page-break {
+  page-break-before: always;
+  break-before: page;
+}
+.a4-sheet .page-break {
+  position: relative;
+  height: 1px;
+  border-top: 1px dashed #cbd5e1;
+  margin: 1.5rem 0;
+}
+.a4-sheet .page-break::after {
+  content: "Page Break";
+  position: absolute;
+  right: 12px;
+  top: -8px;
+  background: #ffffff;
+  padding: 0 8px;
+  font-size: 9px;
+  color: #94a3b8;
+  font-family: monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+@media print {
+  .a4-sheet .page-break {
+    border-top: none;
+    margin: 0;
+  }
+}
+
+/* ── AI glow animation ──────────────────────────────────────────────────── */
 @keyframes pulse-glow {
-  0%, 100% {
-    opacity: 0.5;
-    box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
-  }
-  50% {
-    opacity: 0.8;
-    box-shadow: 0 0 25px rgba(139, 92, 246, 0.4), 0 0 40px rgba(59, 130, 246, 0.2);
-  }
+  0%, 100% { opacity: 0.5; box-shadow: 0 0 12px rgba(139, 92, 246, 0.15); }
+  50%       { opacity: 0.85; box-shadow: 0 0 20px rgba(139, 92, 246, 0.3), 0 0 32px rgba(99, 102, 241, 0.15); }
+}
+.ai-glow { animation: pulse-glow 3s infinite ease-in-out; }
+
+/* ── Preview viewport scrollbar ─────────────────────────────────────────── */
+.preview-viewport-scrollbar::-webkit-scrollbar { width: 10px; display: block; }
+.preview-viewport-scrollbar::-webkit-scrollbar-track   { background: #E5E7EB; }
+.preview-viewport-scrollbar::-webkit-scrollbar-thumb   { background: #9CA3AF; border-radius: 4px; }
+.preview-viewport-scrollbar::-webkit-scrollbar-thumb:hover { background: #6B7280; }
+
+.dark .preview-viewport-scrollbar::-webkit-scrollbar-track  { background: #18181d; }
+.dark .preview-viewport-scrollbar::-webkit-scrollbar-thumb  { background: #3f3f46; }
+.dark .preview-viewport-scrollbar::-webkit-scrollbar-thumb:hover { background: #52525b; }
+
+/* ── Editor textarea — IDE-like dark mode ───────────────────────────────── */
+.dark .editor-textarea {
+  caret-color: #a78bfa;
+}
+.editor-textarea::selection {
+  background: rgba(124, 58, 237, 0.2);
 }
 
-.ai-glow {
-  animation: pulse-glow 3s infinite ease-in-out;
+/* ── Glass panel utilities ──────────────────────────────────────────────── */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+.dark .glass-panel {
+  background: rgba(24, 24, 29, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* ── Focus ring override ─────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  border-radius: 4px;
 }

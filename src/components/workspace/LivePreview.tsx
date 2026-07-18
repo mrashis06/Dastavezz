@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { Eye, FileText, Settings, Compass } from 'lucide-react';
+import React, { useState } from 'react';
+import { Eye, Maximize2, Minimize2 } from 'lucide-react';
 import { ExportSettings } from '../../types';
 import { compileMarkdown } from '../../utils/markdown';
 
@@ -9,15 +9,61 @@ interface LivePreviewProps {
   content: string;
   title: string;
   settings: ExportSettings;
+  onSettingsChange?: (newSettings: ExportSettings) => void;
 }
 
 export default function LivePreview({
   content,
   title,
-  settings
+  settings,
+  onSettingsChange
 }: LivePreviewProps) {
-  // Map margins to standard tailwind padding
+  const [zoom, setZoom] = useState(85);
+  const [zoomInput, setZoomInput] = useState('85');
+  const [isZoomFocused, setIsZoomFocused] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Listen for Escape key to exit fullscreen mode
+  React.useEffect(() => {
+    if (!isFullscreen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsFullscreen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isFullscreen]);
+
+  const handleZoomOut = () => {
+    const nextZoom = Math.max(25, zoom - 25);
+    setZoom(nextZoom);
+    setZoomInput(nextZoom.toString());
+  };
+
+  const handleZoomIn = () => {
+    const nextZoom = Math.min(200, zoom + 25);
+    setZoom(nextZoom);
+    setZoomInput(nextZoom.toString());
+  };
+
+  const handleZoomInputSubmit = () => {
+    let cleanVal = parseInt(zoomInput.replace(/[^0-9]/g, ''), 10);
+    if (isNaN(cleanVal)) {
+      cleanVal = 100;
+    }
+    const clamped = Math.max(25, Math.min(200, cleanVal));
+    setZoom(clamped);
+    setZoomInput(clamped.toString());
+  };
+
+  // Map margins to standard tailwind padding (fallback when margins !== 'custom')
   const getMarginClass = (margins: ExportSettings['margins']) => {
+    if (margins === 'custom') return '';
     switch (margins) {
       case 'narrow':
         return 'p-8 sm:p-10';
@@ -27,6 +73,20 @@ export default function LivePreview({
       default:
         return 'p-12 sm:p-14';
     }
+  };
+
+  // Inline custom margin style mapper
+  const getMarginStyle = (margins: ExportSettings['margins'], customMargins: ExportSettings['customMargins']) => {
+    if (margins === 'custom') {
+      const fallbackMargins = customMargins || { top: 20, right: 20, bottom: 20, left: 20 };
+      return {
+        paddingTop: `${fallbackMargins.top}mm`,
+        paddingRight: `${fallbackMargins.right}mm`,
+        paddingBottom: `${fallbackMargins.bottom}mm`,
+        paddingLeft: `${fallbackMargins.left}mm`
+      };
+    }
+    return {};
   };
 
   // Map font settings to css configurations
@@ -55,39 +115,186 @@ export default function LivePreview({
     }
   };
 
+  // Calculate paper minHeight and width based on size standard formats and orientation (using 96 DPI standard sizes)
+  const getPaperDimensions = (pageSize: ExportSettings['pageSize'], orientation: ExportSettings['orientation']) => {
+    let width = 794; // A4 Standard: 210mm = 8.27in = 794px
+    let height = 1123; // A4 Standard: 297mm = 11.69in = 1123px
+
+    switch (pageSize) {
+      case 'Letter':
+        width = 816; // 8.5in
+        height = 1056; // 11in
+        break;
+      case 'Legal':
+        width = 816; // 8.5in
+        height = 1344; // 14in
+        break;
+      case 'A3':
+        width = 1123; // 297mm
+        height = 1587; // 420mm
+        break;
+      case 'A5':
+        width = 559; // 148mm
+        height = 794; // 210mm
+        break;
+      case 'B5':
+        width = 665; // 176mm
+        height = 941; // 250mm
+        break;
+      case 'A4':
+      default:
+        width = 794;
+        height = 1123;
+        break;
+    }
+
+    if (orientation === 'landscape') {
+      return {
+        width: `${height}px`,
+        minHeight: `${width}px`,
+      };
+    } else {
+      return {
+        width: `${width}px`,
+        minHeight: `${height}px`,
+      };
+    }
+  };
+
+  const paperStyles = getPaperDimensions(settings.pageSize, settings.orientation);
+  const marginStyles = getMarginStyle(settings.margins, settings.customMargins);
+
   return (
-    <div className="flex flex-col h-full bg-card/10 border border-border/60 rounded-xl overflow-hidden">
-      {/* Live Preview Panel Header */}
-      <div className="flex items-center justify-between border-b border-border/60 bg-card/30 px-5 py-3 shrink-0">
-        <div className="flex items-center space-x-2">
-          <Eye className="h-4.5 w-4.5 text-indigo-400" />
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Live Preview
-          </h3>
+    <div className={`flex flex-col bg-white dark:bg-[#18181d] border border-slate-200 dark:border-white/[0.07] rounded-[18px] overflow-hidden shadow-sm dark:shadow-black/30 transition-all duration-300 ${
+      isFullscreen 
+        ? 'fixed inset-0 z-50 rounded-none border-0 w-screen h-screen' 
+        : 'h-full'
+    }`}>
+      {/* Live Preview Panel Header & Toolbar */}
+      <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#18181d] px-3.5 py-2.5 shrink-0 sticky top-0 z-10 w-full">
+        <div className="flex items-center space-x-1.5 shrink-0">
+          <Eye className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
+          <span className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 select-none whitespace-nowrap">
+            LIVE PREVIEW
+          </span>
         </div>
         
-        {/* Quick layout status badges */}
-        <div className="flex items-center space-x-3 text-[11px] text-muted-foreground font-medium">
-          <div className="flex items-center space-x-1">
-            <Compass className="h-3 w-3" />
-            <span className="capitalize">{settings.theme} Theme</span>
+        {/* Quick layout status badges & Zoom controls */}
+        <div className="flex items-center space-x-1.5 text-xs text-muted-foreground font-bold flex-nowrap shrink-0">
+          {/* Theme selector select dropdown matching screenshot */}
+          <div className="relative flex items-center shrink-0">
+            <span className="absolute left-2.5 pointer-events-none text-indigo-500 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.18.03.35-.06.38-.24l.58-3.5c.03-.18-.06-.35-.24-.38A6.99 6.99 0 0 1 4 12c0-3.87 3.13-7 7-7s7 3.13 7 7c0 1.94-.78 3.69-2.05 4.95a.25.25 0 0 0 .17.43c2.72 0 4.88-2.16 4.88-4.88A10 10 0 0 0 12 2Z"></path><path d="m14 10-6 6"></path></svg>
+            </span>
+            <select
+              value={settings.theme}
+              onChange={(e) => {
+                if (onSettingsChange) {
+                  onSettingsChange({
+                    ...settings,
+                    theme: e.target.value as ExportSettings['theme']
+                  });
+                }
+              }}
+              className="w-[146px] bg-white dark:bg-[#111114] border border-slate-200 dark:border-white/[0.07] text-[11px] font-bold rounded-full pl-7 pr-6 py-1 select-none focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer h-[28px] capitalize text-slate-700 dark:text-slate-300 appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2364748B%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:10px] bg-[right_8px_center] bg-no-repeat"
+            >
+              <option value="professional">Professional Theme</option>
+              <option value="minimal">Minimal Theme</option>
+              <option value="academic">Academic Theme</option>
+            </select>
           </div>
-          <div className="h-3 w-px bg-border/80" />
-          <span className="uppercase text-[10px] bg-secondary/40 px-2 py-0.5 rounded border border-border/20 text-foreground">
-            {settings.pageSize}
-          </span>
+
+          {/* Page size select dropdown matching mock */}
+          <select
+            value={settings.pageSize}
+            onChange={(e) => {
+              if (onSettingsChange) {
+                onSettingsChange({
+                  ...settings,
+                  pageSize: e.target.value as ExportSettings['pageSize']
+                });
+              }
+            }}
+            className="w-[58px] bg-white dark:bg-[#111114] border border-slate-200 dark:border-white/[0.07] text-[11px] font-bold rounded-lg py-1 select-none focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer h-[28px] appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2364748B%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:10px] bg-[right_8px_center] bg-no-repeat pr-4 pl-2 text-center text-slate-700 dark:text-slate-300"
+          >
+            <option value="A4">A4</option>
+            <option value="Letter">Letter</option>
+            <option value="Legal">Legal</option>
+            <option value="A3">A3</option>
+            <option value="A5">A5</option>
+            <option value="B5">B5</option>
+          </select>
+
+          <div className="h-4 w-px bg-slate-200 dark:bg-white/[0.07]" />
+
+          {/* Real-time zoom scaling controls */}
+          <div className="flex items-center space-x-1 bg-white dark:bg-[#111114] rounded-lg p-0.5 border border-slate-200 dark:border-white/[0.07] select-none h-[28px]">
+            <button 
+              onClick={handleZoomOut} 
+              className="p-1 hover:bg-muted text-muted-foreground hover:text-foreground rounded transition cursor-pointer flex items-center justify-center font-bold h-6 w-6 text-xs"
+              title="Zoom Out"
+            >
+              —
+            </button>
+            
+            <input 
+              type="text"
+              value={isZoomFocused ? zoomInput : `${zoom}%`}
+              onFocus={() => setIsZoomFocused(true)}
+              onChange={(e) => {
+                const val = e.target.value.replace(/%/g, '');
+                setZoomInput(val);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleZoomInputSubmit();
+                  e.currentTarget.blur();
+                }
+              }}
+              onBlur={() => {
+                setIsZoomFocused(false);
+                handleZoomInputSubmit();
+              }}
+              className="text-[11px] font-bold w-10 text-center text-foreground font-mono bg-transparent border-0 focus:outline-none focus:ring-0 rounded py-0.5 h-full"
+            />
+
+            <button 
+              onClick={handleZoomIn} 
+              className="p-1 hover:bg-muted text-muted-foreground hover:text-foreground rounded transition cursor-pointer flex items-center justify-center font-bold h-6 w-6 text-xs"
+              title="Zoom In"
+            >
+              +
+            </button>
+          </div>
+
+          <div className="h-4 w-px bg-slate-200 dark:bg-white/[0.07]" />
+
+          {/* Fullscreen Button */}
+          <button
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            className="p-1.5 border border-slate-200 dark:border-white/[0.07] rounded-lg text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/[0.06] cursor-pointer transition flex items-center justify-center"
+            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen Viewer"}
+          >
+            {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+          </button>
         </div>
       </div>
 
-      {/* A4 Sheet Viewport Wrapper */}
-      <div className="flex-1 overflow-y-auto bg-slate-950/60 p-6 flex justify-center items-start">
+      {/* A4 Sheet Viewport Wrapper — dark bg is intentionally darker to make white paper pop */}
+      <div className="flex-1 overflow-auto preview-viewport-scrollbar bg-slate-100 dark:bg-[#060608] p-6 lg:p-8 text-center block whitespace-nowrap">
         <div 
-          className={`a4-sheet w-full max-w-[800px] min-h-[900px] rounded-sm shadow-2xl transition-all duration-300 ${getMarginClass(
+          style={{ 
+            zoom: zoom / 100,
+            transition: 'zoom 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+            ...paperStyles,
+            ...marginStyles
+          }}
+          className={`a4-sheet rounded-xl border border-slate-200 dark:border-slate-800 bg-white text-black shadow-[0_4px_24px_rgba(0,0,0,0.06),_0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.5)] inline-block text-left align-top whitespace-normal ${getMarginClass(
             settings.margins
           )} ${getThemeClass(settings.theme)} ${getFontSizeClass(settings.fontSize)}`}
         >
           {/* Header watermark in preview */}
-          <div className="flex items-center justify-between border-b border-gray-100 pb-2 mb-6 text-[10px] text-gray-400 tracking-wider uppercase font-mono">
+          <div className="flex items-center justify-between border-b border-gray-100 pb-2 mb-6 text-[10px] text-gray-400 tracking-wider uppercase font-mono select-none">
             <span>Dastavezz PDF Preview</span>
             <span>{title ? title : 'Untitled_Document'}</span>
           </div>
@@ -101,3 +308,4 @@ export default function LivePreview({
     </div>
   );
 }
+

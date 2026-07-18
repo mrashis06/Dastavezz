@@ -13,8 +13,36 @@ export interface GeminiResponse {
 }
 
 export interface ExportSettings {
-  pageSize: 'A4' | 'Letter';
-  margins: 'standard' | 'narrow' | 'wide';
+  pageSize: 'A4' | 'Letter' | 'Legal' | 'A3' | 'A5' | 'B5';
+  orientation: 'portrait' | 'landscape';
+  margins: 'standard' | 'narrow' | 'wide' | 'custom';
+  customMargins: {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+  };
   fontSize: 'sm' | 'base' | 'lg';
   theme: 'professional' | 'minimal' | 'academic';
 }
+
+export interface AIDocumentContext {
+  template: string | null;
+  title: string;
+  content: string;
+  selectedText?: string;
+  wordCount: number;
+}
+
+import { Timestamp } from 'firebase/firestore';
+
+export interface DocumentVersion {
+  id: string;
+  timestamp: Timestamp | null;
+  action: string;
+  content: string;
+  title: string;
+  previewSnippet: string;
+}
+
+

@@ -13,9 +13,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Dastavezz - AI Document Formatter",
-  description: "Create, format, and enhance professional documents with Gemini AI",
+  title: "Dastavezz — AI Document Workspace",
+  description: "Write, format, and export professional documents with AI-powered assistance. Resumes, reports, business letters — beautifully crafted.",
 };
+
+import { AuthProvider } from "@/providers/AuthProvider";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 
 export default function RootLayout({
   children,
@@ -26,8 +29,15 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <ThemeProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

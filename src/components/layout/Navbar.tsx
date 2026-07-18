@@ -1,83 +1,259 @@
 'use client';
 
 import React from 'react';
-import { FileText, CloudCheck, CloudSnow, RotateCcw, Sparkles } from 'lucide-react';
+import Link from 'next/link';
+import { FileText, RotateCcw, Sparkles, Settings as SettingsIcon, Download, Share2, LogOut, ChevronLeft, Loader2 } from 'lucide-react';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/providers/AuthProvider';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 
 interface NavbarProps {
   title: string;
   onTitleChange: (newTitle: string) => void;
   onReset: () => void;
   isSaving?: boolean;
+  view?: 'dashboard' | 'editor';
+  onBackToDashboard?: () => void;
+  onExport?: (format: 'pdf' | 'docx' | 'markdown') => void;
+  onShareFile?: (format: 'pdf' | 'docx' | 'markdown') => void;
+  onShareLink?: (platform: 'whatsapp' | 'gmail' | 'telegram' | 'link') => void;
 }
 
 export default function Navbar({
   title,
   onTitleChange,
   onReset,
-  isSaving = false
+  isSaving = false,
+  view = 'editor',
+  onBackToDashboard,
+  onExport,
+  onShareFile,
+  onShareLink
 }: NavbarProps) {
+  const { user, signOutUser } = useAuth();
+
+  const getInitials = (name: string) => {
+    if (!name) return 'US';
+    return name.split(' ').filter(Boolean).map((n) => n[0]).join('').substring(0, 2).toUpperCase();
+  };
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between px-6">
-        {/* Brand Logo & Name */}
-        <div className="flex items-center space-x-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-tr from-violet-600 to-indigo-600 text-white shadow-lg shadow-indigo-500/20 ai-glow">
-            <Sparkles className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="bg-gradient-to-r from-violet-400 via-indigo-200 to-white bg-clip-text text-xl font-bold tracking-tight text-transparent">
-              Dastavezz
-            </h1>
-            <p className="text-[10px] font-medium tracking-widest text-indigo-400 uppercase">
-              AI Smart Formatter
-            </p>
-          </div>
+    <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 dark:border-white/[0.06] bg-white/90 dark:bg-[#0a0a0c]/90 backdrop-blur-xl">
+      <div className="mx-auto flex h-13 max-w-full items-center justify-between px-4 md:px-5 gap-3">
+
+        {/* ── Left: Brand + Back ───────────────────────────────────────────── */}
+        <div className="flex items-center space-x-2 shrink-0">
+          {/* Brand mark */}
+          <Link href="/" className="flex items-center space-x-2.5 hover:opacity-90 transition-opacity">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-900 dark:bg-white shadow-sm shrink-0">
+              <Sparkles className="h-3.5 w-3.5 text-white dark:text-slate-900" />
+            </div>
+            <span className="text-sm font-bold text-slate-900 dark:text-white tracking-tight hidden sm:block">Dastavezz</span>
+          </Link>
+
+          {/* Back button */}
+          {view === 'editor' && onBackToDashboard && (
+            <>
+              <div className="h-4 w-px bg-slate-200 dark:bg-white/[0.08] mx-1" />
+              <button
+                onClick={onBackToDashboard}
+                className="flex items-center space-x-1.5 h-7 px-2.5 rounded-lg text-[11px] font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all duration-150 cursor-pointer"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" />
+                <FileText className="h-3.5 w-3.5" />
+                <span className="hidden md:block">Documents</span>
+              </button>
+            </>
+          )}
         </div>
 
-        {/* Document Title Editor */}
-        <div className="flex max-w-md flex-1 items-center space-x-3 px-8">
-          <div className="flex items-center space-x-2 rounded-md bg-secondary/40 px-3 py-1.5 border border-border/40 focus-within:border-indigo-500/50 transition duration-200 w-full">
-            <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+        {/* ── Center: Document title ───────────────────────────────────────── */}
+        {view === 'editor' && (
+          <div className="flex-1 flex items-center justify-center px-4 min-w-0">
             <input
               type="text"
               value={title}
               onChange={(e) => onTitleChange(e.target.value)}
-              className="bg-transparent text-sm font-medium focus:outline-none w-full text-foreground placeholder-muted-foreground"
-              placeholder="Unnamed Document"
+              className="bg-transparent text-sm font-semibold focus:outline-none w-full max-w-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 text-center truncate border-none ring-0 focus:ring-0"
+              placeholder="Untitled Document"
             />
           </div>
-          
-          {/* Firebase Save Status */}
-          <div className="flex items-center space-x-1.5 text-xs text-muted-foreground shrink-0 bg-secondary/20 px-2 py-1 rounded border border-border/20">
-            {isSaving ? (
-              <>
-                <CloudSnow className="h-3.5 w-3.5 text-blue-400 animate-pulse" />
-                <span className="hidden sm:inline">Saving...</span>
-              </>
-            ) : (
-              <>
-                <CloudCheck className="h-3.5 w-3.5 text-green-400" />
-                <span className="hidden sm:inline">Saved to Cloud</span>
-              </>
-            )}
-          </div>
-        </div>
+        )}
 
-        {/* Global Action Controls */}
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={onReset}
-            className="flex items-center space-x-2 text-xs font-semibold text-muted-foreground hover:text-foreground bg-secondary/30 hover:bg-secondary/60 border border-border/60 rounded-md px-3.5 py-2 transition duration-200 cursor-pointer"
-            title="Clear all workspace contents"
-          >
-            <RotateCcw className="h-3.5 w-3.5" />
-            <span>Clear Workspace</span>
-          </button>
-          
-          <div className="hidden lg:flex items-center space-x-1 px-3 py-1 bg-violet-950/30 border border-violet-800/30 text-violet-300 rounded-full text-[11px] font-semibold">
-            <span className="h-1.5 w-1.5 rounded-full bg-violet-400 animate-ping mr-1"></span>
-            Gemini Flash Active
-          </div>
+        {/* Dashboard brand center */}
+        {view === 'dashboard' && (
+          <div className="flex-1" />
+        )}
+
+        {/* ── Right: Controls + Avatar ─────────────────────────────────────── */}
+        <div className="flex items-center space-x-2 shrink-0">
+
+          {view === 'editor' && (
+            <>
+              {/* Save status pill */}
+              <div className="flex items-center shrink-0">
+                {isSaving ? (
+                  <div className="flex items-center space-x-1.5 text-[10px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/50 px-2.5 py-1 rounded-full">
+                    <Loader2 className="h-2.5 w-2.5 animate-spin" />
+                    <span>Saving</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-1.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 px-2.5 py-1 rounded-full">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    <span>Saved</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="h-4 w-px bg-slate-200 dark:bg-white/[0.08]" />
+
+              {/* Export dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center space-x-1.5 h-7 px-3 rounded-lg border border-slate-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.04] text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-white/[0.15] hover:bg-slate-50 dark:hover:bg-white/[0.07] transition-all duration-150 cursor-pointer">
+                  <Download className="h-3.5 w-3.5 text-slate-400" />
+                  <span className="hidden sm:block">Export</span>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-44 rounded-xl border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#18181d] shadow-xl shadow-black/10 p-1">
+                  <div className="text-[10px] text-slate-450 dark:text-slate-500 px-3 py-1.5 font-bold uppercase tracking-widest select-none">Export as</div>
+                  <DropdownMenuSeparator className="bg-slate-100 dark:bg-white/[0.06] my-1" />
+                  <DropdownMenuItem 
+                    onClick={() => onExport?.('pdf')}
+                    className="text-xs font-medium cursor-pointer rounded-lg px-3 py-2 flex items-center space-x-2 text-slate-700 dark:text-slate-300 focus:bg-slate-50 dark:focus:bg-white/[0.06]"
+                  >
+                    <span>PDF (.pdf)</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => onExport?.('docx')}
+                    className="text-xs font-medium cursor-pointer rounded-lg px-3 py-2 flex items-center space-x-2 text-slate-700 dark:text-slate-300 focus:bg-slate-50 dark:focus:bg-white/[0.06]"
+                  >
+                    <span>Word (.docx)</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => onExport?.('markdown')}
+                    className="text-xs font-medium cursor-pointer rounded-lg px-3 py-2 flex items-center space-x-2 text-slate-700 dark:text-slate-300 focus:bg-slate-50 dark:focus:bg-white/[0.06]"
+                  >
+                    <span>Markdown (.md)</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Share dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center space-x-1.5 h-7 px-3 rounded-lg border border-slate-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.04] text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-white/[0.15] hover:bg-slate-50 dark:hover:bg-white/[0.07] transition-all duration-150 cursor-pointer">
+                  <Share2 className="h-3.5 w-3.5 text-slate-400" />
+                  <span className="hidden sm:block">Share</span>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-52 rounded-xl border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#18181d] shadow-xl shadow-black/10 p-1">
+                  <div className="text-[10px] text-slate-450 dark:text-slate-500 px-3 py-1.5 font-bold uppercase tracking-widest select-none">Share as File</div>
+                  <DropdownMenuSeparator className="bg-slate-100 dark:bg-white/[0.06] my-1" />
+                  <DropdownMenuItem 
+                    onClick={() => onShareFile?.('pdf')}
+                    className="text-xs font-medium cursor-pointer rounded-lg px-3 py-2 flex items-center space-x-2 text-slate-700 dark:text-slate-300 focus:bg-slate-50 dark:focus:bg-white/[0.06]"
+                  >
+                    <span>PDF (.pdf)</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => onShareFile?.('docx')}
+                    className="text-xs font-medium cursor-pointer rounded-lg px-3 py-2 flex items-center space-x-2 text-slate-700 dark:text-slate-300 focus:bg-slate-50 dark:focus:bg-white/[0.06]"
+                  >
+                    <span>Word (.doc)</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => onShareFile?.('markdown')}
+                    className="text-xs font-medium cursor-pointer rounded-lg px-3 py-2 flex items-center space-x-2 text-slate-700 dark:text-slate-300 focus:bg-slate-50 dark:focus:bg-white/[0.06]"
+                  >
+                    <span>Markdown (.md)</span>
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuSeparator className="bg-slate-100 dark:bg-white/[0.06] my-1" />
+                  <div className="text-[10px] text-slate-450 dark:text-slate-500 px-3 py-1.5 font-bold uppercase tracking-widest select-none">Share Link</div>
+                  <DropdownMenuSeparator className="bg-slate-100 dark:bg-white/[0.06] my-1" />
+                  <DropdownMenuItem 
+                    onClick={() => onShareLink?.('whatsapp')}
+                    className="text-xs font-medium cursor-pointer rounded-lg px-3 py-2 flex items-center space-x-2 text-slate-700 dark:text-slate-300 focus:bg-slate-50 dark:focus:bg-white/[0.06]"
+                  >
+                    <span>WhatsApp</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => onShareLink?.('gmail')}
+                    className="text-xs font-medium cursor-pointer rounded-lg px-3 py-2 flex items-center space-x-2 text-slate-700 dark:text-slate-300 focus:bg-slate-50 dark:focus:bg-white/[0.06]"
+                  >
+                    <span>Gmail</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => onShareLink?.('telegram')}
+                    className="text-xs font-medium cursor-pointer rounded-lg px-3 py-2 flex items-center space-x-2 text-slate-700 dark:text-slate-300 focus:bg-slate-50 dark:focus:bg-white/[0.06]"
+                  >
+                    <span>Telegram</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-slate-100 dark:bg-white/[0.06] my-1" />
+                  <DropdownMenuItem 
+                    onClick={() => onShareLink?.('link')}
+                    className="text-xs font-medium cursor-pointer rounded-lg px-3 py-2 flex items-center space-x-2 text-slate-700 dark:text-slate-300 focus:bg-slate-50 dark:focus:bg-white/[0.06]"
+                  >
+                    <span>Copy Link</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Settings dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 dark:text-slate-600 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all cursor-pointer border-0 outline-none">
+                  <SettingsIcon className="h-4 w-4" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-44 rounded-xl border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#18181d] shadow-xl shadow-black/10 p-1">
+                  <div className="text-[10px] text-slate-450 dark:text-slate-500 px-3 py-1.5 font-bold uppercase tracking-widest select-none">Workspace</div>
+                  <DropdownMenuSeparator className="bg-slate-100 dark:bg-white/[0.06] my-1" />
+                  <DropdownMenuItem
+                    onClick={onReset}
+                    className="text-xs font-medium cursor-pointer rounded-lg px-3 py-2 flex items-center space-x-2 text-red-500 focus:bg-red-50 dark:focus:bg-red-950/30 focus:text-red-600"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5" />
+                    <span>Clear workspace</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <div className="h-4 w-px bg-slate-200 dark:bg-white/[0.08]" />
+            </>
+          )}
+
+          {/* Theme toggle */}
+          <ThemeToggle variant="menu" />
+
+          <div className="h-4 w-px bg-slate-200 dark:bg-white/[0.08]" />
+          <DropdownMenu>
+            <DropdownMenuTrigger className="focus:outline-none cursor-pointer">
+              <Avatar className="h-7 w-7 border border-slate-200 dark:border-white/[0.1] hover:scale-105 transition-transform duration-150 cursor-pointer select-none">
+                {user?.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />}
+                <AvatarFallback className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-[10px]">
+                  {getInitials(user?.displayName || user?.email || '')}
+                </AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52 rounded-xl border-slate-200 dark:border-white/[0.1] bg-white dark:bg-[#18181d] shadow-xl shadow-black/10 p-1">
+              <div className="flex flex-col px-3 py-2.5">
+                <span className="font-semibold text-xs text-slate-900 dark:text-white truncate">{user?.displayName || 'User'}</span>
+                <span className="text-[10px] text-slate-400 dark:text-slate-500 truncate font-normal mt-0.5">{user?.email}</span>
+              </div>
+              <DropdownMenuSeparator className="bg-slate-100 dark:bg-white/[0.06] my-1" />
+              <DropdownMenuItem
+                onClick={signOutUser}
+                className="text-xs font-medium cursor-pointer rounded-lg px-3 py-2 flex items-center space-x-2 text-slate-500 dark:text-slate-400 hover:text-red-500 focus:bg-slate-50 dark:focus:bg-white/[0.06] focus:text-red-500"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                <span>Sign out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>
