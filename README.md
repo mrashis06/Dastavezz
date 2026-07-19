@@ -50,6 +50,7 @@ Dastavezz was built to solve this middle ground:
 | **Version History** | Automated document snapshots and manual checkpoints prior to major template modifications. |
 | **Multi-Format Export** | Direct export to PDF, DOCX (Microsoft Word), and Markdown formats. |
 | **Design System** | Dark-mode interface built with Tailwind CSS, custom glassmorphism components, and responsive layouts. |
+| **Progressive Web App (PWA)** | Standalone downloadable application with offline shell loading, custom splash screens, and mobile-first responsiveness. |
 
 ---
 
@@ -197,6 +198,34 @@ flowchart TD
     I --> J[Live Preview Verification]
     J --> K[Export: PDF / DOCX / Markdown]
 ```
+
+---
+
+## Progressive Web App (PWA) & Mobile Standalone
+
+Dastavezz is fully optimized as an installable Progressive Web App (PWA), providing a native, full-screen downloadable experience for both desktop and mobile platforms.
+
+- **Standalone Native Experience**: Hides browser search bars, address fields, and desktop wrappers to offer a premium full-screen editorial workspace.
+- **Mobile-First Workspace Layout**: Optimized for screen widths under `1024px`, featuring a responsive bottom navigation bar to switch between the Editor, Live Document Preview, AI Assistant Panel, and Version Snapshot History.
+- **Service Worker Caching**: Integrates a client-side Service Worker (`/sw.js`) that caches core application assets and handles background fetches.
+- **Brand Consistency**: Configured dynamic manifests supporting custom maskable logos and startup icons matching high-resolution mobile retina screens.
+
+### Installation Instructions
+- **Desktop (Chrome / Edge / Safari)**: Click the **Download/Install App** shortcut icon in the browser address bar.
+- **Android / Mobile Chrome**: Select **Add to Home Screen** from the browser's menu option.
+- **iOS / Apple Safari**: Tap the **Share** menu button at the bottom of the browser and choose **Add to Home Screen**.
+
+### Mobile Screenshots Reference
+
+Save your mobile screenshot files inside `public/screenshots/mobile/` using the following exact filenames to display them in the README:
+
+| 1. Landing (`landing.png`) | 2. Dashboard (`dashboard.png`) | 3. Live Preview (`preview.png`) |
+| :---: | :---: | :---: |
+| ![Mobile Landing](/public/screenshots/mobile/landing.png) | ![Mobile Dashboard](/public/screenshots/mobile/dashboard.png) | ![Mobile Preview](/public/screenshots/mobile/preview.png) |
+
+| 4. AI Assistant (`ai.png`) | 5. Version History (`history.png`) |
+| :---: | :---: |
+| ![Mobile AI](/public/screenshots/mobile/ai.png) | ![Mobile History](/public/screenshots/mobile/history.png) |
 
 ---
 
