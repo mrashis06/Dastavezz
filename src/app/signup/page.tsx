@@ -95,7 +95,9 @@ export default function SignupPage() {
 
           {/* Branding */}
           <div className="flex flex-col items-center text-center space-y-3">
-            <DastavezzIcon size={44} />
+            <Link href="/" className="hover:opacity-90 transition-opacity">
+              <DastavezzIcon size={44} />
+            </Link>
             <h1 className="text-xl font-bold tracking-tight">Create your account</h1>
             <p className="text-xs text-slate-400 dark:text-slate-500">
               Get started with AI-powered document editing.

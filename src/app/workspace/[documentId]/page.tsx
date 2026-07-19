@@ -26,6 +26,9 @@ import { createDocumentVersion } from '@/services/documents';
 import { compileMarkdown } from '@/utils/markdown';
 import BrandLoader from '@/components/brand/BrandLoader';
 import DastavezzIcon from '@/components/brand/DastavezzIcon';
+import TemplateComparison from '@/components/template/TemplateComparison';
+import { transformDocumentWithTemplate } from '@/lib/templates/templateEngine';
+import { toast } from '@/utils/toast';
 
 // ---------------------------------------------------------------------------
 // Undo/Redo history entry shape
@@ -378,18 +381,67 @@ export default function WorkspaceDocumentPage() {
   }, [title, content, pushUndo, saveVersionCheckpoint]);
 
   // ---------------------------------------------------------------------------
-  // Handle template insertion (empty editor + layout preset)
+  // Smart Template Engine state
+  // ---------------------------------------------------------------------------
+  const [isComparisonOpen, setIsComparisonOpen] = useState(false);
+  const [pendingTemplate, setPendingTemplate] = useState<DocumentTemplate | null>(null);
+  const [transformedContent, setTransformedContent] = useState('');
+  const [isTransforming, setIsTransforming] = useState(false);
+  const [isAIResult, setIsAIResult] = useState(false);
+
+  // ---------------------------------------------------------------------------
+  // Handle Smart Template selection (triggers side-by-side transformation preview)
   // ---------------------------------------------------------------------------
   const handleSelectTemplate = useCallback(async (template: DocumentTemplate) => {
-    // Push current state for undo
+    setPendingTemplate(template);
+    setIsComparisonOpen(true);
+    setIsTransforming(true);
+    setTransformedContent('');
+
+    try {
+      const result = await transformDocumentWithTemplate(content, template.id, true);
+      setTransformedContent(result.content);
+      setIsAIResult(result.isAI);
+    } catch (err) {
+      console.error('Template transformation error:', err);
+      setTransformedContent(content);
+    } finally {
+      setIsTransforming(false);
+    }
+  }, [content]);
+
+  // ---------------------------------------------------------------------------
+  // Handle Regenerate Preview
+  // ---------------------------------------------------------------------------
+  const handleRegenerateTemplate = useCallback(async () => {
+    if (!pendingTemplate) return;
+    setIsTransforming(true);
+    try {
+      const result = await transformDocumentWithTemplate(content, pendingTemplate.id, true);
+      setTransformedContent(result.content);
+      setIsAIResult(result.isAI);
+    } catch (err) {
+      console.error('Template transformation error:', err);
+    } finally {
+      setIsTransforming(false);
+    }
+  }, [content, pendingTemplate]);
+
+  // ---------------------------------------------------------------------------
+  // Apply transformed template content to editor
+  // ---------------------------------------------------------------------------
+  const handleApplyTemplate = useCallback(async () => {
+    if (!pendingTemplate || !transformedContent) return;
+
     pushUndo({ title, content });
 
-    // Save checkpoint for version history
-    await saveVersionCheckpoint(`Template applied: ${template.name}`, template.defaultTitle, '');
+    const newTitle = (!title || title === 'Untitled Document' || title === 'Untitled_Document')
+      ? pendingTemplate.defaultTitle
+      : title;
 
-    setContent('');
-    setTitle(template.defaultTitle);
-    setActiveTemplateId(template.id);
+    setContent(transformedContent);
+    setTitle(newTitle);
+    setActiveTemplateId(pendingTemplate.id);
 
     const getExportSettingsForTemplate = (templateId: string): ExportSettings => {
       switch (templateId) {
@@ -399,15 +451,22 @@ export default function WorkspaceDocumentPage() {
           return { pageSize: 'Letter', orientation: 'portrait', margins: 'standard', customMargins: { top: 20, right: 20, bottom: 20, left: 20 }, fontSize: 'base', theme: 'minimal' };
         case 'project-report':
           return { pageSize: 'A4', orientation: 'portrait', margins: 'standard', customMargins: { top: 20, right: 20, bottom: 20, left: 20 }, fontSize: 'base', theme: 'academic' };
-        case 'cover-letter':
-          return { pageSize: 'Letter', orientation: 'portrait', margins: 'standard', customMargins: { top: 20, right: 20, bottom: 20, left: 20 }, fontSize: 'base', theme: 'minimal' };
         default:
-          return { pageSize: 'A4', orientation: 'portrait', margins: 'standard', customMargins: { top: 20, right: 20, bottom: 20, left: 20 }, fontSize: 'base', theme: 'professional' };
+          return exportSettings;
       }
     };
 
-    setExportSettings(getExportSettingsForTemplate(template.id));
-  }, [title, content, pushUndo, saveVersionCheckpoint]);
+    setExportSettings(getExportSettingsForTemplate(pendingTemplate.id));
+
+    // Save checkpoint for version history with action details
+    await saveVersionCheckpoint(`Applied ${pendingTemplate.name} Template`, newTitle, '');
+
+    toast.success('Template Applied', {
+      description: `Document layout updated with ${pendingTemplate.name}.`,
+    });
+
+    setIsComparisonOpen(false);
+  }, [pendingTemplate, transformedContent, title, content, pushUndo, exportSettings, saveVersionCheckpoint]);
 
   // ---------------------------------------------------------------------------
   // Handle document resetting
@@ -857,6 +916,19 @@ export default function WorkspaceDocumentPage() {
           </div>
         </div>
       </div>
+
+      {/* Smart Template Comparison Side-by-Side Modal */}
+      <TemplateComparison
+        isOpen={isComparisonOpen}
+        onOpenChange={setIsComparisonOpen}
+        originalContent={content}
+        transformedContent={transformedContent}
+        templateName={pendingTemplate?.name || 'Template'}
+        isAI={isAIResult}
+        isLoading={isTransforming}
+        onApply={handleApplyTemplate}
+        onRegenerate={handleRegenerateTemplate}
+      />
     </div>
   );
 }

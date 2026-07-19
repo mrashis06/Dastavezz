@@ -14,7 +14,9 @@ export default function Footer() {
 
           {/* Brand */}
           <div className="space-y-3 max-w-xs">
-            <DastavezzLogo iconSize={28} showTagline={true} />
+            <Link href="/" className="inline-block hover:opacity-90 transition-opacity">
+              <DastavezzLogo iconSize={28} showTagline={true} />
+            </Link>
             <p className="text-xs text-slate-400 dark:text-slate-600 leading-relaxed">
               AI-powered document workspace for writing, formatting, and exporting professional documents.
             </p>

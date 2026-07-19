@@ -40,7 +40,9 @@ export default function LandingPage() {
         <div className="mx-auto max-w-[1200px] px-6 pt-4">
           <nav className="flex h-12 items-center justify-between rounded-2xl border border-slate-200/80 dark:border-white/[0.06] bg-white/80 dark:bg-white/[0.04] backdrop-blur-xl px-4 shadow-sm shadow-black/[0.04]">
             {/* Brand */}
-            <DastavezzLogo iconSize={26} />
+            <Link href="/" className="hover:opacity-90 transition-opacity">
+              <DastavezzLogo iconSize={26} />
+            </Link>
 
             {/* Right controls */}
             <div className="flex items-center space-x-2">

@@ -1,14 +1,34 @@
 import { DocumentTemplate } from '../types';
-import { resumeTemplate } from './resume';
-import { businessLetterTemplate } from './businessLetter';
-import { projectReportTemplate } from './projectReport';
-import { coverLetterTemplate } from './coverLetter';
+import { SmartTemplateConfig } from './types';
+import { resumeTemplateConfig } from './resume';
+import { businessLetterConfig } from './business-letter';
+import { projectReportConfig } from './project-report';
 
-export const templates: DocumentTemplate[] = [
-  resumeTemplate,
-  businessLetterTemplate,
-  projectReportTemplate,
-  coverLetterTemplate
-];
+export * from './types';
+export { resumeTemplateConfig, businessLetterConfig, projectReportConfig };
 
-export { resumeTemplate, businessLetterTemplate, projectReportTemplate, coverLetterTemplate };
+/**
+ * Registry of all available Smart Template configurations
+ */
+export class SmartTemplatesRegistry {
+  public static readonly templates: SmartTemplateConfig[] = [
+    resumeTemplateConfig,
+    businessLetterConfig,
+    projectReportConfig,
+  ];
+
+  public static getById(id: string): SmartTemplateConfig | undefined {
+    return this.templates.find((t) => t.id === id);
+  }
+}
+
+/**
+ * Backward-compatible DocumentTemplate array for legacy views
+ */
+export const templates: DocumentTemplate[] = SmartTemplatesRegistry.templates.map((t) => ({
+  id: t.id,
+  name: t.name,
+  description: t.description,
+  defaultTitle: t.defaultTitle,
+  content: t.sampleContent,
+}));

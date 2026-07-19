@@ -56,7 +56,7 @@ export default function Navbar({
         {/* ── Left: Brand + Back ───────────────────────────────────────────── */}
         <div className="flex items-center space-x-2 shrink-0">
           {/* Brand mark */}
-          <Link href={user ? "/dashboard" : "/"} className="flex items-center space-x-2 hover:opacity-90 transition-opacity">
+          <Link href="/" className="flex items-center space-x-2 hover:opacity-90 transition-opacity">
             <DastavezzIcon size={26} />
             <span className="text-sm font-bold text-slate-900 dark:text-white tracking-tight hidden sm:block">Dastavezz</span>
           </Link>
