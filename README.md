@@ -309,3 +309,7 @@ Distributed under the MIT License. See `LICENSE` for details.
 
 - GitHub: [https://github.com/mrashis06](https://github.com/mrashis06)
 - Project Site: [https://dastavezz.online/](https://dastavezz.online/)
+
+---
+
+<p align="center">Made with ❤️ by Dastavezz</p>
