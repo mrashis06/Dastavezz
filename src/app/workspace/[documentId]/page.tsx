@@ -789,7 +789,7 @@ export default function WorkspaceDocumentPage() {
   // Main Editor Layout
   // ---------------------------------------------------------------------------
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground font-sans">
+    <div className="flex flex-col min-h-screen lg:h-screen lg:overflow-hidden bg-background text-foreground font-sans">
       {/* 1. Global Navigation Bar */}
       <Navbar
         title={title}
@@ -810,7 +810,7 @@ export default function WorkspaceDocumentPage() {
       />
 
       {/* 3. Main Work Area (Desktop Split Grid + Mobile Tabbed View) */}
-      <main className="flex-1 w-full max-w-full mx-auto px-2 sm:px-4 md:px-5 py-2 sm:py-4 flex flex-col overflow-hidden bg-slate-50 dark:bg-[#0a0a0c] pb-16 lg:pb-0">
+      <main className="flex-1 w-full max-w-full mx-auto px-2 sm:px-4 md:px-5 py-2 sm:py-4 flex flex-col lg:overflow-hidden bg-slate-50 dark:bg-[#0a0a0c] pb-16 lg:pb-0">
         
         {/* DESKTOP SPLIT GRID (lg:grid) - 100% UNTOUCHED */}
         <div className="hidden lg:grid grid-cols-24 gap-6 flex-1 lg:h-[calc(100vh-270px)] lg:min-h-[500px] overflow-hidden">
@@ -899,9 +899,9 @@ export default function WorkspaceDocumentPage() {
         </div>
 
         {/* MOBILE DEDICATED VIEW (lg:hidden) - FULL PAGE NATIVE SWAP */}
-        <div className="lg:hidden flex flex-col flex-1 h-[calc(100dvh-185px)] overflow-hidden">
+        <div className="lg:hidden flex flex-col flex-1 min-h-0">
           {mobileTab === 'editor' && (
-            <div className="flex-1 flex flex-col h-full overflow-hidden">
+            <div className="flex-1 flex flex-col min-h-[480px]">
               <DocumentEditor
                 content={content}
                 onContentChange={handleContentChange}
@@ -917,7 +917,7 @@ export default function WorkspaceDocumentPage() {
           )}
 
           {mobileTab === 'preview' && (
-            <div className="flex-1 flex flex-col h-full overflow-hidden">
+            <div className="flex-1 flex flex-col min-h-[600px]">
               <LivePreview
                 content={content}
                 title={title}
@@ -928,7 +928,7 @@ export default function WorkspaceDocumentPage() {
           )}
 
           {mobileTab === 'ai' && (
-            <div className="flex-1 flex flex-col h-full overflow-hidden">
+            <div className="flex-1 flex flex-col min-h-[500px]">
               <AIAssistant
                 content={content}
                 onContentChange={handleContentChange}
@@ -943,7 +943,7 @@ export default function WorkspaceDocumentPage() {
           )}
 
           {mobileTab === 'history' && (
-            <div className="flex-1 flex flex-col h-full overflow-hidden">
+            <div className="flex-1 flex flex-col min-h-[420px]">
               <VersionHistory
                 key={versionRefreshKey}
                 documentId={documentId}

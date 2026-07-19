@@ -71,30 +71,30 @@ export default function TemplateComparison({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[1240px] w-[100vw] sm:w-[96vw] h-[100dvh] sm:h-[90vh] max-h-[100dvh] sm:max-h-[880px] p-0 rounded-none sm:rounded-2xl md:rounded-[28px] bg-[#0c0c0f] border-0 sm:border border-white/[0.08] text-white shadow-2xl flex flex-col overflow-hidden select-none">
+      <DialogContent className="w-[100vw] sm:w-[96vw] max-w-[100vw] sm:max-w-[96vw] lg:max-w-[1240px] h-[100dvh] sm:h-[90vh] max-h-[100dvh] sm:max-h-[880px] p-0 rounded-none sm:rounded-2xl md:rounded-[28px] bg-[#0c0c0f] border-0 sm:border border-white/[0.08] text-white shadow-2xl flex flex-col overflow-hidden select-none">
         
         {/* ── HEADER ───────────────────────────────────────────────────────── */}
         <DialogHeader className="px-4 sm:px-6 md:px-8 py-3.5 sm:py-5 border-b border-white/[0.06] flex flex-row items-center justify-between shrink-0 space-y-0 bg-[#0e0e12]">
           <div className="flex items-center space-x-3 sm:space-x-4 min-w-0">
             <DastavezzIcon size={32} className="shrink-0 sm:w-9 sm:h-9" />
             <div className="flex flex-col min-w-0">
-              <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-                <DialogTitle className="text-base sm:text-lg md:text-xl font-bold text-white tracking-tight truncate">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2 min-w-0">
+                <DialogTitle className="text-sm sm:text-base md:text-lg font-bold text-white tracking-tight">
                   Smart Template Conversion
                 </DialogTitle>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold bg-violet-500/15 text-violet-300 border border-violet-500/25 shrink-0">
-                  <Sparkles className="h-3 w-3 mr-1 text-violet-400" />
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-semibold bg-violet-500/15 text-violet-300 border border-violet-500/25 shrink-0 w-fit">
+                  <Sparkles className="h-2.5 w-2.5 mr-1 text-violet-400" />
                   {templateName}
                 </span>
               </div>
-              <DialogDescription className="text-[11px] sm:text-xs text-slate-400 mt-0.5 sm:mt-1 font-normal truncate max-w-xl">
-                Review AI-generated formatting enhancements before applying.
+              <DialogDescription className="text-[10px] sm:text-xs text-slate-400 mt-0.5 sm:mt-1 font-normal max-w-xs sm:max-w-xl truncate">
+                Review AI-generated formatting and structural enhancements before applying to your document.
               </DialogDescription>
             </div>
           </div>
 
           {/* Right AI Stats Badge */}
-          <div className="hidden lg:flex items-center space-x-3 px-4 py-2.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] shrink-0 ml-4">
+          <div className="hidden xl:flex items-center space-x-3 px-4 py-2.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] shrink-0 ml-4">
             <div className="h-8 w-8 rounded-xl bg-violet-500/20 text-violet-400 flex items-center justify-center shrink-0">
               <Wand2 className="h-4 w-4" />
             </div>
@@ -110,16 +110,16 @@ export default function TemplateComparison({
         </DialogHeader>
 
         {/* ── MAIN BODY WORKSPACE ────────────────────────────────────────── */}
-        <div className="flex-1 flex flex-col lg:grid lg:grid-cols-2 gap-3 sm:gap-5 p-3 sm:p-5 md:p-7 overflow-y-auto lg:overflow-hidden min-h-0 bg-[#09090b]">
+        <div className="flex-1 flex flex-col xl:grid xl:grid-cols-2 gap-3 sm:gap-5 p-3 sm:p-5 md:p-7 overflow-y-auto xl:overflow-hidden min-h-0 bg-[#09090b]">
           
           {/* ── ORIGINAL DOCUMENT PANEL (Collapsible on Mobile) ───────────── */}
-          <div className="flex flex-col rounded-xl sm:rounded-2xl bg-[#121216] border border-white/[0.07] overflow-hidden shrink-0 lg:shrink lg:min-w-0 shadow-sm">
+          <div className="flex flex-col rounded-xl sm:rounded-2xl bg-[#121216] border border-white/[0.07] overflow-hidden shrink-0 xl:shrink xl:min-w-0 shadow-sm">
             
             {/* Header / Disclosure bar */}
             <button
               type="button"
               onClick={() => setIsOriginalExpandedMobile(!isOriginalExpandedMobile)}
-              className="w-full px-4 sm:px-5 py-3 bg-white/[0.02] border-b border-white/[0.06] flex items-center justify-between cursor-pointer lg:cursor-default"
+              className="w-full px-4 sm:px-5 py-3 bg-white/[0.02] border-b border-white/[0.06] flex items-center justify-between cursor-pointer xl:cursor-default"
             >
               <div className="flex items-center space-x-2">
                 <FileText className="h-4 w-4 text-slate-400" />
@@ -130,19 +130,19 @@ export default function TemplateComparison({
                   {wordCountOriginal} words
                 </span>
               </div>
-              <div className="lg:hidden text-slate-400">
+              <div className="xl:hidden text-slate-400">
                 {isOriginalExpandedMobile ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </div>
             </button>
             
             {/* Body content */}
-            <div className={`p-4 sm:p-6 overflow-y-auto font-mono text-xs leading-relaxed text-slate-300 whitespace-pre-wrap select-text ${isOriginalExpandedMobile ? 'block max-h-60 lg:max-h-none' : 'hidden lg:block lg:flex-1'}`}>
+            <div className={`p-4 sm:p-6 overflow-y-auto font-mono text-xs leading-relaxed text-slate-300 whitespace-pre-wrap select-text ${isOriginalExpandedMobile ? 'block max-h-60 xl:max-h-none' : 'hidden xl:block xl:flex-1'}`}>
               {originalContent || <span className="italic text-slate-500">Empty document</span>}
             </div>
           </div>
 
           {/* ── AI TEMPLATE PREVIEW PANEL (Primary Space on Mobile) ──────── */}
-          <div className="flex-1 flex flex-col rounded-xl sm:rounded-2xl bg-[#121216] border border-white/[0.07] overflow-hidden min-w-0 shadow-sm min-h-[350px] lg:min-h-0">
+          <div className="flex-1 flex flex-col rounded-xl sm:rounded-2xl bg-[#121216] border border-white/[0.07] overflow-hidden min-w-0 shadow-sm min-h-[350px] xl:min-h-0">
             <div className="px-4 sm:px-5 py-3 bg-violet-950/20 border-b border-white/[0.06] flex items-center justify-between shrink-0 flex-wrap gap-2">
               <div className="flex items-center space-x-2">
                 <Sparkles className="h-4 w-4 text-violet-400" />

@@ -121,8 +121,8 @@ export default function TemplatePicker({
                 type="button"
                 onClick={() => onSelectTemplate(template)}
                 className={`
-                  group relative flex flex-col text-left px-4 py-3.5 rounded-xl border cursor-pointer
-                  transition-all duration-150 w-full min-h-[110px]
+                  group relative flex items-center text-left px-3.5 py-2.5 rounded-xl border cursor-pointer
+                  transition-all duration-150 w-full min-h-[58px]
                   ${
                     isActive
                       ? `${meta.activeBg} ${meta.activeBorder} shadow-sm dark:shadow-black/40`
@@ -130,46 +130,44 @@ export default function TemplatePicker({
                   }
                 `}
               >
-                {/* Active indicator */}
-                {isActive && (
-                  <div className="absolute top-3 right-3">
-                    <CheckCircle2 className={`h-4 w-4 ${meta.accent}`} />
-                  </div>
-                )}
-
                 {/* Icon */}
-                <div className={`h-7 w-7 rounded-lg flex items-center justify-center mb-2.5 ${meta.iconBg}`}>
+                <div className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 mr-3 ${meta.iconBg}`}>
                   {meta.icon}
                 </div>
 
-                {/* Name */}
-                <p
-                  className={`text-xs font-bold leading-snug mb-1 transition-colors ${
-                    isActive
-                      ? meta.accent
-                      : 'text-slate-800 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white'
-                  }`}
-                >
-                  {template.name}
-                </p>
-
-                {/* Description */}
-                <p className="text-[10.5px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed font-normal mb-2">
-                  {template.description}
-                </p>
-
-                {/* Badge */}
-                <div className="mt-auto self-start">
-                  <span
-                    className={`text-[9px] font-bold px-2 py-0.5 rounded border tracking-widest uppercase select-none ${
-                      isActive
-                        ? `${meta.accent} border-current opacity-90`
-                        : 'text-slate-400 dark:text-slate-400 border-slate-200 dark:border-white/[0.12]'
-                    }`}
-                  >
-                    {meta.label}
-                  </span>
+                {/* Details (Inline Header + Description) */}
+                <div className="flex-1 min-w-0 pr-6">
+                  <div className="flex items-center space-x-2">
+                    <span
+                      className={`text-xs font-bold leading-none transition-colors ${
+                        isActive
+                          ? meta.accent
+                          : 'text-slate-800 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white'
+                      }`}
+                    >
+                      {template.name}
+                    </span>
+                    <span
+                      className={`text-[8px] font-bold px-1.5 py-0.2 rounded border tracking-widest uppercase select-none shrink-0 ${
+                        isActive
+                          ? `${meta.accent} border-current opacity-90`
+                          : 'text-slate-400 dark:text-slate-400 border-slate-200 dark:border-white/[0.12]'
+                      }`}
+                    >
+                      {meta.label}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate mt-1 font-normal">
+                    {template.description}
+                  </p>
                 </div>
+
+                {/* Active checkmark */}
+                {isActive && (
+                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2 shrink-0">
+                    <CheckCircle2 className={`h-4 w-4 ${meta.accent}`} />
+                  </div>
+                )}
               </button>
             );
           })}
