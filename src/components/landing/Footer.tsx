@@ -48,7 +48,7 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} Dastavezz. All rights reserved.
           </p>
           <p className="text-[11px] text-slate-400 dark:text-slate-600 font-medium flex items-center gap-1.5">
-            Generated with Dastavezz
+            Made with ❤️ by Dastavezz
           </p>
         </div>
       </div>

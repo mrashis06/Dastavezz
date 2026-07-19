@@ -233,6 +233,7 @@ export default function WorkspaceDocumentPage() {
     if (loading || !user || !documentId) return;
 
     const loadDocument = async () => {
+      const startTime = Date.now();
       try {
         const docRef = doc(db, 'users', user.uid, 'documents', documentId);
         const docSnap = await getDoc(docRef);
@@ -265,11 +266,14 @@ export default function WorkspaceDocumentPage() {
         console.error("Error loading document from Firestore:", error);
         setDocExists(false);
       } finally {
-        setDocLoading(false);
-        // Defer load complete to avoid saving intermediate loading state
+        const elapsed = Date.now() - startTime;
+        const remaining = Math.max(0, 2000 - elapsed);
         setTimeout(() => {
-          setIsInitialLoadComplete(true);
-        }, 50);
+          setDocLoading(false);
+          setTimeout(() => {
+            setIsInitialLoadComplete(true);
+          }, 50);
+        }, remaining);
       }
     };
 

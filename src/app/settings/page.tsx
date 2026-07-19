@@ -62,6 +62,16 @@ export default function SettingsPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordLoading, setPasswordLoading] = useState(false);
 
+  const [minLoadingComplete, setMinLoadingComplete] = useState(false);
+
+  // Ensure Dastavezz loading animation displays smoothly for at least 2 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMinLoadingComplete(true);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
   // Redirect if not authenticated
   useEffect(() => {
     if (!loading && !user) router.push('/');
@@ -74,7 +84,7 @@ export default function SettingsPage() {
     }
   }, [profile]);
 
-  if (loading || !user) {
+  if (loading || !user || !minLoadingComplete) {
     return <BrandLoader message="Loading settings..." />;
   }
 

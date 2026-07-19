@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import DocumentDashboard from '@/components/workspace/DocumentDashboard';
 import { useAuth } from '@/providers/AuthProvider';
@@ -10,6 +10,15 @@ import BrandLoader from '@/components/brand/BrandLoader';
 export default function DashboardPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const [minLoadingComplete, setMinLoadingComplete] = useState(false);
+
+  // Ensure Dastavezz loading animation displays smoothly for at least 2 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMinLoadingComplete(true);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Protect the dashboard route
   useEffect(() => {
@@ -18,7 +27,7 @@ export default function DashboardPage() {
     }
   }, [user, loading, router]);
 
-  if (loading) {
+  if (loading || !minLoadingComplete) {
     return <BrandLoader message="Loading Dashboard..." />;
   }
 

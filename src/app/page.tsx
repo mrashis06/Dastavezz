@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -36,7 +37,12 @@ export default function LandingPage() {
     <div className="min-h-screen bg-white dark:bg-[#0a0a0c] text-slate-900 dark:text-slate-100 font-sans select-none overflow-x-hidden">
 
       {/* ── Landing Navbar ─────────────────────────────────────────────────── */}
-      <header className="fixed top-0 z-50 w-full">
+      <motion.header
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="fixed top-0 z-50 w-full"
+      >
         <div className="mx-auto max-w-[1200px] px-6 pt-4">
           <nav className="flex h-12 items-center justify-between rounded-2xl border border-slate-200/80 dark:border-white/[0.06] bg-white/80 dark:bg-white/[0.04] backdrop-blur-xl px-4 shadow-sm shadow-black/[0.04]">
             {/* Brand */}
@@ -59,7 +65,7 @@ export default function LandingPage() {
             </div>
           </nav>
         </div>
-      </header>
+      </motion.header>
 
       {/* ── Page Sections ───────────────────────────────────────────────────── */}
       <Hero />
