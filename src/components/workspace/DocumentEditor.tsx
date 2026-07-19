@@ -14,6 +14,7 @@ interface DocumentEditorProps {
   onRedo?: () => void;
   canUndo?: boolean;
   canRedo?: boolean;
+  readOnly?: boolean;
 }
 
 export default function DocumentEditor({
@@ -25,7 +26,8 @@ export default function DocumentEditor({
   onUndo,
   onRedo,
   canUndo = false,
-  canRedo = false
+  canRedo = false,
+  readOnly = false
 }: DocumentEditorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -156,28 +158,38 @@ export default function DocumentEditor({
         </div>
 
         {/* Upload File Input (Header Action) */}
-        <div className="flex items-center shrink-0">
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileUpload}
-            accept=".txt,.md,.markdown,.docx,.pdf"
-            className="hidden"
-          />
-          <button
-            onClick={triggerFileBrowser}
-            className="flex items-center space-x-1 px-3 py-1.5 text-[11px] font-bold text-slate-700 dark:text-slate-350 bg-slate-50 dark:bg-white/[0.04] hover:bg-slate-100 dark:hover:bg-white/[0.08] border border-slate-200 dark:border-white/[0.08] rounded-xl transition cursor-pointer select-none"
-            title="Import TXT, Markdown, DOCX, or PDF"
-          >
-            <Upload className="h-3.5 w-3.5 text-slate-500" />
-            <span>Import</span>
-          </button>
-        </div>
+        {!readOnly && (
+          <div className="flex items-center shrink-0">
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              accept=".txt,.md,.markdown,.docx,.pdf"
+              className="hidden"
+            />
+            <button
+              onClick={triggerFileBrowser}
+              className="flex items-center space-x-1 px-3 py-1.5 text-[11px] font-bold text-slate-700 dark:text-slate-350 bg-slate-50 dark:bg-white/[0.04] hover:bg-slate-100 dark:hover:bg-white/[0.08] border border-slate-200 dark:border-white/[0.08] rounded-xl transition cursor-pointer select-none"
+              title="Import TXT, Markdown, DOCX, or PDF"
+            >
+              <Upload className="h-3.5 w-3.5 text-slate-500" />
+              <span>Import</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Modern Editing Sticky Toolbar */}
-      <div className="sticky top-0 z-10 flex items-center justify-between bg-slate-50 dark:bg-[#111114] border-b border-slate-200 dark:border-white/[0.06] px-3 sm:px-4 py-1.5 shrink-0 overflow-x-auto no-scrollbar">
-        <TooltipProvider delay={150}>
+      {readOnly ? (
+        <div className="sticky top-0 z-10 flex items-center justify-between bg-slate-50 dark:bg-[#111114] border-b border-slate-200 dark:border-white/[0.06] px-4 py-2 shrink-0 select-none">
+          <span className="text-[10px] font-bold tracking-wider text-amber-500/90 dark:text-amber-400/90 uppercase flex items-center">
+            <Layers className="h-3.5 w-3.5 mr-1.5 text-amber-500/80 animate-pulse" />
+            Read-only Viewer Mode (Collaboration link active)
+          </span>
+        </div>
+      ) : (
+        <div className="sticky top-0 z-10 flex items-center justify-between bg-slate-50 dark:bg-[#111114] border-b border-slate-200 dark:border-white/[0.06] px-3 sm:px-4 py-1.5 shrink-0 overflow-x-auto no-scrollbar">
+          <TooltipProvider delay={150}>
           <div className="flex items-center space-x-1 shrink-0">
             <Tooltip>
               <TooltipTrigger 
@@ -312,6 +324,7 @@ export default function DocumentEditor({
           </div>
         </TooltipProvider>
       </div>
+      )}
 
       {/* Main Edit Form Field */}
       <div className="flex-1 relative overflow-hidden bg-white dark:bg-[#18181d]">
@@ -325,8 +338,9 @@ export default function DocumentEditor({
           onSelect={handleSelectionChange}
           onKeyUp={handleSelectionChange}
           onMouseUp={handleSelectionChange}
-          className="w-full h-full p-6 bg-transparent text-sm leading-relaxed text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none resize-none font-mono overflow-y-auto preview-viewport-scrollbar editor-textarea"
-          placeholder="# Write your document outline here in Markdown...&#10;&#10;Use standard headings, bullet lists, tables, and spacing. Choose a layout theme on the right, or let Gemini AI help you rewrite and improve your content tone!"
+          readOnly={readOnly}
+          className="w-full h-full p-6 bg-transparent text-sm leading-relaxed text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none resize-none font-mono overflow-y-auto preview-viewport-scrollbar editor-textarea read-only:opacity-75 read-only:cursor-default"
+          placeholder={readOnly ? "No document content exists yet." : "# Write your document outline here in Markdown...&#10;&#10;Use standard headings, bullet lists, tables, and spacing. Choose a layout theme on the right, or let Gemini AI help you rewrite and improve your content tone!"}
         />
       </div>
 

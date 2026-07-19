@@ -21,10 +21,10 @@ import { DocumentTemplate, ExportSettings } from '@/types';
 import { Button } from '@/components/ui/button';
 
 import { useAuth } from '@/providers/AuthProvider';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { db } from '@/services/firebase';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { createDocumentVersion } from '@/services/documents';
+import { doc, getDoc, setDoc, serverTimestamp, onSnapshot, collection } from 'firebase/firestore';
+import { createDocumentVersion, CollaboratorPresence, updateUserPresence, removeUserPresence } from '@/services/documents';
 import { compileMarkdown } from '@/utils/markdown';
 import BrandLoader from '@/components/brand/BrandLoader';
 import DastavezzIcon from '@/components/brand/DastavezzIcon';
@@ -48,6 +48,21 @@ export default function WorkspaceDocumentPage() {
   const router = useRouter();
   const params = useParams();
   const documentId = params.documentId as string;
+
+  const searchParams = useSearchParams();
+  const ownerUidParam = searchParams.get('owner');
+  const roleParam = searchParams.get('role');
+  const [userRole, setUserRole] = useState<'owner' | 'editor' | 'viewer'>('owner');
+
+  // Determine user role (owner, guest editor, or guest viewer)
+  useEffect(() => {
+    if (loading || !user) return;
+    if (!ownerUidParam || ownerUidParam === user.uid) {
+      setUserRole('owner');
+    } else {
+      setUserRole(roleParam === 'editor' ? 'editor' : 'viewer');
+    }
+  }, [user, loading, ownerUidParam, roleParam]);
 
   // ---------------------------------------------------------------------------
   // Document state
@@ -83,6 +98,7 @@ export default function WorkspaceDocumentPage() {
   const [docExists, setDocExists] = useState(true);
   // Tracks if version history panel needs to refresh
   const [versionRefreshKey, setVersionRefreshKey] = useState(0);
+  const [activeCollaborators, setActiveCollaborators] = useState<CollaboratorPresence[]>([]);
 
   // ---------------------------------------------------------------------------
   // Undo / Redo stack
@@ -230,19 +246,93 @@ export default function WorkspaceDocumentPage() {
   }, [user, loading, router]);
 
   // ---------------------------------------------------------------------------
-  // Load document from Firestore
+  // Real-time Collaborative Presence & Heartbeat Tracking
   // ---------------------------------------------------------------------------
   useEffect(() => {
     if (loading || !user || !documentId) return;
 
-    const loadDocument = async () => {
-      const startTime = Date.now();
-      try {
-        const docRef = doc(db, 'users', user.uid, 'documents', documentId);
-        const docSnap = await getDoc(docRef);
+    const targetOwnerUid = ownerUidParam || user.uid;
+    const presenceColRef = collection(db, 'users', targetOwnerUid, 'documents', documentId, 'presence');
 
-        if (docSnap.exists()) {
-          const data = docSnap.data();
+    const displayName = user.displayName || user.email?.split('@')[0] || 'Collaborator';
+    const photoURL = user.photoURL || null;
+    const role = userRole;
+
+    // 1. Initial presence write
+    updateUserPresence(targetOwnerUid, documentId, user.uid, { displayName, photoURL, role });
+
+    // 2. Set up heartbeat interval every 25 seconds
+    const heartbeatTimer = setInterval(() => {
+      updateUserPresence(targetOwnerUid, documentId, user.uid, { displayName, photoURL, role });
+    }, 25000);
+
+    // 3. Set up onSnapshot listener to keep track of active collaborators
+    const unsubscribe = onSnapshot(presenceColRef, (snapshot) => {
+      const collaborators: CollaboratorPresence[] = [];
+      const nowMs = Date.now();
+
+      snapshot.forEach((snap) => {
+        const data = snap.data();
+        // Ignore self in the display list
+        if (snap.id === user.uid) return;
+
+        // Check if lastActive timestamp is within the last 60 seconds
+        const lastActive = data.lastActive;
+        let isActive = false;
+        if (lastActive) {
+          const lastActiveMs = lastActive.toMillis ? lastActive.toMillis() : (lastActive.seconds * 1000);
+          if (nowMs - lastActiveMs < 60000) {
+            isActive = true;
+          }
+        } else {
+          // If null (local write in progress), assume active
+          isActive = true;
+        }
+
+        if (isActive) {
+          collaborators.push({
+            userId: data.userId ?? snap.id,
+            displayName: data.displayName ?? 'Anonymous',
+            photoURL: data.photoURL ?? null,
+            role: data.role ?? 'viewer',
+            lastActive: lastActive
+          });
+        }
+      });
+
+      setActiveCollaborators(collaborators);
+    }, (error) => {
+      console.error("Error subscribing to presence subcollection:", error);
+    });
+
+    // 4. Cleanup presence record on exit
+    return () => {
+      clearInterval(heartbeatTimer);
+      unsubscribe();
+      removeUserPresence(targetOwnerUid, documentId, user.uid);
+    };
+  }, [user, loading, documentId, ownerUidParam, userRole]);
+
+  // ---------------------------------------------------------------------------
+  // Load document from Firestore (Real-time listener)
+  // ---------------------------------------------------------------------------
+  useEffect(() => {
+    if (loading || !user || !documentId) return;
+
+    const startTime = Date.now();
+    const targetOwnerUid = ownerUidParam || user.uid;
+    const docRef = doc(db, 'users', targetOwnerUid, 'documents', documentId);
+
+    let isFirstLoad = true;
+
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        
+        // Only update local state if:
+        // 1. It is the first load, OR
+        // 2. The edit was made by a different user to prevent cursor jumping
+        if (isFirstLoad || data.lastUpdatedBy !== user.uid) {
           setTitle(data.title ?? 'Untitled_Document');
           setContent(data.content ?? '');
           setActiveTemplateId(data.activeTemplateId ?? null);
@@ -261,14 +351,14 @@ export default function WorkspaceDocumentPage() {
               theme: data.exportSettings.theme ?? 'professional',
             });
           }
-          setDocExists(true);
-        } else {
-          setDocExists(false);
         }
-      } catch (error) {
-        console.error("Error loading document from Firestore:", error);
+        setDocExists(true);
+      } else {
         setDocExists(false);
-      } finally {
+      }
+
+      if (isFirstLoad) {
+        isFirstLoad = false;
         const elapsed = Date.now() - startTime;
         const remaining = Math.max(0, 2000 - elapsed);
         setTimeout(() => {
@@ -278,18 +368,24 @@ export default function WorkspaceDocumentPage() {
           }, 50);
         }, remaining);
       }
-    };
+    }, (error) => {
+      console.error("Error listening to document real-time changes:", error);
+      setDocExists(false);
+      setDocLoading(false);
+    });
 
-    loadDocument();
-  }, [user, loading, documentId]);
+    return () => unsubscribe();
+  }, [user, loading, documentId, ownerUidParam]);
 
   // ---------------------------------------------------------------------------
   // Real Firestore Auto-save with 2-second debounce
   // ---------------------------------------------------------------------------
   useEffect(() => {
     if (!isInitialLoadComplete || !user || !documentId || !docExists) return;
+    if (userRole === 'viewer') return; // Read-only view cannot save
 
-    const docRef = doc(db, 'users', user.uid, 'documents', documentId);
+    const targetOwnerUid = ownerUidParam || user.uid;
+    const docRef = doc(db, 'users', targetOwnerUid, 'documents', documentId);
     
     const savePendingTimer = setTimeout(() => {
       setIsSaving(true);
@@ -302,6 +398,7 @@ export default function WorkspaceDocumentPage() {
           content,
           activeTemplateId,
           exportSettings,
+          lastUpdatedBy: user.uid,
           updatedAt: serverTimestamp(),
         }, { merge: true });
       } catch (error) {
@@ -315,7 +412,7 @@ export default function WorkspaceDocumentPage() {
       clearTimeout(savePendingTimer);
       clearTimeout(saveTimer);
     };
-  }, [title, content, activeTemplateId, exportSettings, isInitialLoadComplete, user, documentId, docExists]);
+  }, [title, content, activeTemplateId, exportSettings, isInitialLoadComplete, user, documentId, docExists, ownerUidParam, userRole]);
 
   // ---------------------------------------------------------------------------
   // Periodic version snapshot – every 3 minutes of active editing
@@ -475,15 +572,13 @@ export default function WorkspaceDocumentPage() {
     setIsComparisonOpen(false);
   }, [pendingTemplate, transformedContent, title, content, pushUndo, exportSettings, saveVersionCheckpoint]);
 
-  // ---------------------------------------------------------------------------
-  // Handle document resetting
-  // ---------------------------------------------------------------------------
   const handleResetWorkspace = useCallback(() => {
+    if (userRole === 'viewer') return;
     pushUndo({ title, content });
     setContent('');
     setTitle('Untitled_Document');
     setActiveTemplateId(null);
-  }, [title, content, pushUndo]);
+  }, [title, content, pushUndo, userRole]);
 
   // ---------------------------------------------------------------------------
   // Back to Dashboard handler
@@ -707,23 +802,23 @@ export default function WorkspaceDocumentPage() {
     }
   }, [title, content, exportSettings]);
 
-  // ---------------------------------------------------------------------------
-  // Action Handler: Sharing document Link
-  // ---------------------------------------------------------------------------
-  const handleShareLink = useCallback((platform: 'whatsapp' | 'gmail' | 'telegram' | 'link') => {
-    const docUrl = window.location.href;
-    const text = `Check out this document I created on Dastavezz: "${title}"\nLink: ${docUrl}`;
+  const handleShareLink = useCallback((platform: 'whatsapp' | 'gmail' | 'telegram' | 'link', role: 'editor' | 'viewer' = 'editor') => {
+    if (!user) return;
+    const baseUrl = `${window.location.origin}${window.location.pathname}`;
+    const docUrl = `${baseUrl}?owner=${user.uid}&role=${role}`;
+    const text = `Collaborate with me on this document on Dastavezz ("${title}") as an ${role === 'editor' ? 'Editor' : 'Viewer'}:\nLink: ${docUrl}`;
     
     if (platform === 'link') {
       navigator.clipboard.writeText(docUrl);
+      toast.success(`Share Link (${role === 'editor' ? 'Editor' : 'Viewer'}) copied to clipboard!`);
     } else if (platform === 'whatsapp') {
       window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
     } else if (platform === 'gmail') {
-      window.open(`mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(text)}`, '_blank');
+      window.open(`mailto:?subject=${encodeURIComponent(`Collaborate: ${title}`)}&body=${encodeURIComponent(text)}`, '_blank');
     } else if (platform === 'telegram') {
-      window.open(`https://t.me/share/url?url=${encodeURIComponent(docUrl)}&text=${encodeURIComponent(`Check out this document: "${title}"`)}`, '_blank');
+      window.open(`https://t.me/share/url?url=${encodeURIComponent(docUrl)}&text=${encodeURIComponent(`Collaborate with me on "${title}"`)}`, '_blank');
     }
-  }, [title]);
+  }, [title, user]);
 
   // ---------------------------------------------------------------------------
   // Text metrics helpers
@@ -801,13 +896,17 @@ export default function WorkspaceDocumentPage() {
         onExport={handleExport}
         onShareFile={handleShareFile}
         onShareLink={handleShareLink}
+        userRole={userRole}
+        activeCollaborators={activeCollaborators}
       />
 
       {/* 2. Top Section Template Gallery Selector */}
-      <TemplateSelector
-        onSelectTemplate={handleSelectTemplate}
-        activeTemplateId={activeTemplateId}
-      />
+      <div className={userRole === 'viewer' ? 'pointer-events-none opacity-50 select-none' : ''}>
+        <TemplateSelector
+          onSelectTemplate={handleSelectTemplate}
+          activeTemplateId={activeTemplateId}
+        />
+      </div>
 
       {/* 3. Main Work Area (Desktop Split Grid + Mobile Tabbed View) */}
       <main className="flex-1 w-full max-w-full mx-auto px-2 sm:px-4 md:px-5 py-2 sm:py-4 flex flex-col lg:overflow-hidden bg-slate-50 dark:bg-[#0a0a0c] pb-16 lg:pb-0">
@@ -826,6 +925,7 @@ export default function WorkspaceDocumentPage() {
               onRedo={handleRedo}
               canUndo={canUndo}
               canRedo={canRedo}
+              readOnly={userRole === 'viewer'}
             />
           </div>
 
@@ -879,6 +979,7 @@ export default function WorkspaceDocumentPage() {
                   selectedText={selectedText}
                   wordCount={getWordCount()}
                   onAICheckpoint={saveVersionCheckpoint}
+                  readOnly={userRole === 'viewer'}
                 />
               ) : activeTab === 'export' ? (
                 <ExportControls
@@ -912,6 +1013,7 @@ export default function WorkspaceDocumentPage() {
                 onRedo={handleRedo}
                 canUndo={canUndo}
                 canRedo={canRedo}
+                readOnly={userRole === 'viewer'}
               />
             </div>
           )}
@@ -938,6 +1040,7 @@ export default function WorkspaceDocumentPage() {
                 selectedText={selectedText}
                 wordCount={getWordCount()}
                 onAICheckpoint={saveVersionCheckpoint}
+                readOnly={userRole === 'viewer'}
               />
             </div>
           )}

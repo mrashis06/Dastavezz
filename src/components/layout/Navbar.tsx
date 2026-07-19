@@ -17,6 +17,8 @@ import ThemeToggle from '@/components/ui/ThemeToggle';
 import { useRouter } from 'next/navigation';
 
 import DastavezzIcon from '@/components/brand/DastavezzIcon';
+import { CollaboratorPresence } from '@/services/documents';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface NavbarProps {
   title: string;
@@ -27,7 +29,9 @@ interface NavbarProps {
   onBackToDashboard?: () => void;
   onExport?: (format: 'pdf' | 'docx' | 'markdown') => void;
   onShareFile?: (format: 'pdf' | 'docx' | 'markdown') => void;
-  onShareLink?: (platform: 'whatsapp' | 'gmail' | 'telegram' | 'link') => void;
+  onShareLink?: (platform: 'whatsapp' | 'gmail' | 'telegram' | 'link', role: 'editor' | 'viewer') => void;
+  userRole?: 'owner' | 'editor' | 'viewer';
+  activeCollaborators?: CollaboratorPresence[];
 }
 
 export default function Navbar({
@@ -39,10 +43,13 @@ export default function Navbar({
   onBackToDashboard,
   onExport,
   onShareFile,
-  onShareLink
+  onShareLink,
+  userRole = 'owner',
+  activeCollaborators = []
 }: NavbarProps) {
   const { user, profile, signOutUser } = useAuth();
   const router = useRouter();
+  const [shareRole, setShareRole] = React.useState<'editor' | 'viewer'>('editor');
 
   const getInitials = (name: string) => {
     if (!name) return 'US';
@@ -84,7 +91,8 @@ export default function Navbar({
               type="text"
               value={title}
               onChange={(e) => onTitleChange(e.target.value)}
-              className="bg-transparent text-sm font-semibold focus:outline-none w-full max-w-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 text-center truncate border-none ring-0 focus:ring-0"
+              disabled={userRole === 'viewer'}
+              className="bg-transparent text-sm font-semibold focus:outline-none w-full max-w-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 text-center truncate border-none ring-0 focus:ring-0 disabled:opacity-70"
               placeholder="Untitled Document"
             />
           </div>
@@ -104,7 +112,12 @@ export default function Navbar({
               <div className="hidden md:flex items-center space-x-2 shrink-0">
                 {/* Save status pill */}
                 <div className="flex items-center shrink-0">
-                  {isSaving ? (
+                  {userRole === 'viewer' ? (
+                    <div className="flex items-center space-x-1.5 text-[10px] font-semibold text-slate-600 dark:text-slate-450 bg-slate-100 dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.08] px-2.5 py-1 rounded-full select-none">
+                      <FileText className="h-2.5 w-2.5 text-slate-450" />
+                      <span>Viewer Mode</span>
+                    </div>
+                  ) : isSaving ? (
                     <div className="flex items-center space-x-1.5 text-[10px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/50 px-2.5 py-1 rounded-full">
                       <Loader2 className="h-2.5 w-2.5 animate-spin" />
                       <span>Saving</span>
@@ -118,6 +131,45 @@ export default function Navbar({
                 </div>
 
                 <div className="h-4 w-px bg-slate-200 dark:bg-white/[0.08]" />
+
+                {/* Active Collaborators stack */}
+                {activeCollaborators.length > 0 && (
+                  <>
+                    <div className="flex items-center -space-x-1.5 select-none shrink-0">
+                      <TooltipProvider delay={100}>
+                        {activeCollaborators.slice(0, 3).map((col) => {
+                          const initials = col.displayName.split(' ').filter(Boolean).map((n) => n[0]).join('').substring(0, 2).toUpperCase() || 'US';
+                          const roleColor = col.role === 'editor' ? 'border-violet-500' : 'border-slate-300 dark:border-white/[0.12]';
+                          const roleLabel = col.role === 'editor' ? 'Editor' : col.role === 'owner' ? 'Owner' : 'Viewer';
+                          return (
+                            <Tooltip key={col.userId}>
+                              <TooltipTrigger className="focus:outline-none">
+                                <Avatar className={`h-6.5 w-6.5 border-1.5 ${roleColor} hover:scale-105 transition-transform duration-150 cursor-default`}>
+                                  {col.photoURL ? (
+                                    <AvatarImage src={col.photoURL} alt={col.displayName} />
+                                  ) : null}
+                                  <AvatarFallback className="text-[9.5px] font-bold bg-violet-600 text-white">
+                                    {initials}
+                                  </AvatarFallback>
+                                </Avatar>
+                              </TooltipTrigger>
+                              <TooltipContent className="text-[10px] px-2.5 py-1 flex flex-col space-y-0.5">
+                                <span className="font-bold text-foreground">{col.displayName}</span>
+                                <span className="text-[9px] text-muted-foreground font-semibold uppercase tracking-wider">{roleLabel}</span>
+                              </TooltipContent>
+                            </Tooltip>
+                          );
+                        })}
+                        {activeCollaborators.length > 3 && (
+                          <div className="flex h-6.5 w-6.5 items-center justify-center rounded-full bg-slate-100 dark:bg-white/[0.08] text-[9.5px] font-extrabold text-slate-650 dark:text-slate-400 border-1.5 border-white dark:border-[#0a0a0c]">
+                            +{activeCollaborators.length - 3}
+                          </div>
+                        )}
+                      </TooltipProvider>
+                    </div>
+                    <div className="h-4 w-px bg-slate-200 dark:bg-white/[0.08]" />
+                  </>
+                )}
 
                 {/* Export dropdown */}
                 <DropdownMenu>
@@ -178,36 +230,62 @@ export default function Navbar({
                     </DropdownMenuItem>
                     
                     <DropdownMenuSeparator className="bg-slate-100 dark:bg-white/[0.06] my-1" />
-                    <div className="text-[10px] text-slate-450 dark:text-slate-500 px-3 py-1.5 font-bold uppercase tracking-widest select-none">Share Link</div>
+                    <div className="text-[10px] text-slate-450 dark:text-slate-500 px-3 py-1 font-bold uppercase tracking-widest select-none">Collaboration Role</div>
+                    <div className="flex items-center justify-between px-3 py-1 gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setShareRole('editor')}
+                        className={`flex-1 py-1 text-[10px] font-bold rounded-lg border text-center transition cursor-pointer select-none ${
+                          shareRole === 'editor'
+                            ? 'bg-violet-500/10 text-violet-400 border-violet-500/30'
+                            : 'bg-transparent text-slate-400 border-slate-200 dark:border-white/[0.08] hover:bg-slate-50 dark:hover:bg-white/[0.04]'
+                        }`}
+                      >
+                        Editor
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShareRole('viewer')}
+                        className={`flex-1 py-1 text-[10px] font-bold rounded-lg border text-center transition cursor-pointer select-none ${
+                          shareRole === 'viewer'
+                            ? 'bg-violet-500/10 text-violet-400 border-violet-500/30'
+                            : 'bg-transparent text-slate-400 border-slate-200 dark:border-white/[0.08] hover:bg-slate-50 dark:hover:bg-white/[0.04]'
+                        }`}
+                      >
+                        Viewer
+                      </button>
+                    </div>
+
                     <DropdownMenuSeparator className="bg-slate-100 dark:bg-white/[0.06] my-1" />
+                    <div className="text-[10px] text-slate-450 dark:text-slate-500 px-3 py-1.5 font-bold uppercase tracking-widest select-none">Share Link</div>
                     <DropdownMenuItem 
-                      onClick={() => onShareLink?.('whatsapp')}
+                      onClick={() => onShareLink?.('whatsapp', shareRole)}
                       className="text-xs font-medium cursor-pointer rounded-lg px-3 py-2 flex items-center space-x-2 text-slate-700 dark:text-slate-300 focus:bg-slate-50 dark:focus:bg-white/[0.06]"
                     >
                       <span>WhatsApp</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem 
-                      onClick={() => onShareLink?.('gmail')}
+                      onClick={() => onShareLink?.('gmail', shareRole)}
                       className="text-xs font-medium cursor-pointer rounded-lg px-3 py-2 flex items-center space-x-2 text-slate-700 dark:text-slate-300 focus:bg-slate-50 dark:focus:bg-white/[0.06]"
                     >
                       <span>Gmail</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem 
-                      onClick={() => onShareLink?.('telegram')}
+                      onClick={() => onShareLink?.('telegram', shareRole)}
                       className="text-xs font-medium cursor-pointer rounded-lg px-3 py-2 flex items-center space-x-2 text-slate-700 dark:text-slate-300 focus:bg-slate-50 dark:focus:bg-white/[0.06]"
                     >
                       <span>Telegram</span>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator className="bg-slate-100 dark:bg-white/[0.06] my-1" />
                     <DropdownMenuItem 
-                      onClick={() => onShareLink?.('link')}
-                      className="text-xs font-medium cursor-pointer rounded-lg px-3 py-2 flex items-center space-x-2 text-slate-700 dark:text-slate-300 focus:bg-slate-50 dark:focus:bg-white/[0.06]"
+                      onClick={() => onShareLink?.('link', shareRole)}
+                      className="text-xs font-bold cursor-pointer rounded-lg px-3 py-2 flex items-center space-x-2 text-violet-500 hover:text-violet-400 focus:bg-slate-50 dark:focus:bg-white/[0.06]"
                     >
-                      <span>Copy Link</span>
+                      <span>Copy Share Link</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-
+ 
                 {/* Settings dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 dark:text-slate-600 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all cursor-pointer border-0 outline-none">
@@ -216,19 +294,48 @@ export default function Navbar({
                   <DropdownMenuContent align="end" className="w-44 rounded-xl border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#18181d] shadow-xl shadow-black/10 p-1">
                     <div className="text-[10px] text-slate-450 dark:text-slate-500 px-3 py-1.5 font-bold uppercase tracking-widest select-none">Workspace</div>
                     <DropdownMenuSeparator className="bg-slate-100 dark:bg-white/[0.06] my-1" />
-                    <DropdownMenuItem
-                      onClick={onReset}
-                      className="text-xs font-medium cursor-pointer rounded-lg px-3 py-2 flex items-center space-x-2 text-red-500 focus:bg-red-50 dark:focus:bg-red-950/30 focus:text-red-600"
-                    >
-                      <RotateCcw className="h-3.5 w-3.5" />
-                      <span>Clear workspace</span>
-                    </DropdownMenuItem>
+                    {userRole !== 'viewer' ? (
+                      <DropdownMenuItem
+                        onClick={onReset}
+                        className="text-xs font-medium cursor-pointer rounded-lg px-3 py-2 flex items-center space-x-2 text-red-500 focus:bg-red-50 dark:focus:bg-red-950/30 focus:text-red-600"
+                      >
+                        <RotateCcw className="h-3.5 w-3.5" />
+                        <span>Clear workspace</span>
+                      </DropdownMenuItem>
+                    ) : (
+                      <div className="text-xs text-slate-400 dark:text-slate-500 px-3 py-2 select-none italic font-medium">No actions available</div>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-
+ 
               {/* Mobile Actions Dropdown (hidden on desktop) */}
-              <div className="flex md:hidden items-center">
+              <div className="flex md:hidden items-center space-x-1.5">
+                {/* Compact Collaborators Avatar Stack for Mobile */}
+                {activeCollaborators.length > 0 && (
+                  <div className="flex items-center -space-x-1 select-none shrink-0">
+                    {activeCollaborators.slice(0, 2).map((col) => {
+                      const initials = col.displayName.split(' ').filter(Boolean).map((n) => n[0]).join('').substring(0, 2).toUpperCase() || 'US';
+                      const roleColor = col.role === 'editor' ? 'border-violet-500' : 'border-slate-350 dark:border-white/[0.15]';
+                      return (
+                        <Avatar key={col.userId} className={`h-5.5 w-5.5 border-1.5 ${roleColor} cursor-default`}>
+                          {col.photoURL ? (
+                            <AvatarImage src={col.photoURL} alt={col.displayName} />
+                          ) : null}
+                          <AvatarFallback className="text-[8px] font-bold bg-violet-600 text-white">
+                            {initials}
+                          </AvatarFallback>
+                        </Avatar>
+                      );
+                    })}
+                    {activeCollaborators.length > 2 && (
+                      <div className="flex h-5.5 w-5.5 items-center justify-center rounded-full bg-slate-100 dark:bg-white/[0.08] text-[8.5px] font-extrabold text-slate-650 dark:text-slate-450 border border-white dark:border-[#0a0a0c]">
+                        +{activeCollaborators.length - 2}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <DropdownMenu>
                   <DropdownMenuTrigger className="flex h-7 px-2.5 items-center justify-center space-x-1.5 rounded-lg border border-slate-200/80 dark:border-white/[0.08] bg-white dark:bg-white/[0.04] text-[10px] font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.06] cursor-pointer transition select-none">
                     <span>Actions</span>
@@ -237,7 +344,9 @@ export default function Navbar({
                     {/* Status item */}
                     <div className="px-3 py-1.5 flex items-center justify-between select-none">
                       <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Status:</span>
-                      {isSaving ? (
+                      {userRole === 'viewer' ? (
+                        <span className="text-[10px] font-bold text-slate-500 flex items-center"><FileText className="h-2.5 w-2.5 mr-1" />Viewer</span>
+                      ) : isSaving ? (
                         <span className="text-[10px] font-bold text-blue-500 flex items-center"><Loader2 className="h-2.5 w-2.5 animate-spin mr-1" />Saving</span>
                       ) : (
                         <span className="text-[10px] font-bold text-emerald-500 flex items-center"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500 mr-1" />Saved</span>
@@ -265,33 +374,64 @@ export default function Navbar({
                     >
                       Markdown (.md)
                     </DropdownMenuItem>
-
+ 
                     <DropdownMenuSeparator className="bg-slate-100 dark:bg-white/[0.06] my-1" />
 
+                    {/* Mobile Share Segment selection */}
+                    <div className="text-[9px] text-slate-400 dark:text-slate-500 px-3 py-1 font-bold uppercase tracking-widest select-none">Collaboration Role</div>
+                    <div className="flex items-center justify-between px-3 py-1 gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setShareRole('editor')}
+                        className={`flex-1 py-1 text-[9px] font-bold rounded-lg border text-center transition cursor-pointer select-none ${
+                          shareRole === 'editor'
+                            ? 'bg-violet-500/10 text-violet-400 border-violet-500/30'
+                            : 'bg-transparent text-slate-400 border-slate-200 dark:border-white/[0.08]'
+                        }`}
+                      >
+                        Editor
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShareRole('viewer')}
+                        className={`flex-1 py-1 text-[9px] font-bold rounded-lg border text-center transition cursor-pointer select-none ${
+                          shareRole === 'viewer'
+                            ? 'bg-violet-500/10 text-violet-400 border-violet-500/30'
+                            : 'bg-transparent text-slate-400 border-slate-200 dark:border-white/[0.08]'
+                        }`}
+                      >
+                        Viewer
+                      </button>
+                    </div>
+
+                    <DropdownMenuSeparator className="bg-slate-100 dark:bg-white/[0.06] my-1" />
+ 
                     {/* Share Section */}
                     <div className="text-[9px] text-slate-400 dark:text-slate-500 px-3 py-1 font-bold uppercase tracking-widest select-none">Share Document</div>
                     <DropdownMenuItem 
-                      onClick={() => onShareLink?.('link')}
+                      onClick={() => onShareLink?.('link', shareRole)}
                       className="text-xs font-semibold cursor-pointer rounded-lg px-3 py-1.5 text-slate-700 dark:text-slate-300 focus:bg-slate-50 dark:focus:bg-white/[0.06]"
                     >
                       Copy Link
                     </DropdownMenuItem>
                     <DropdownMenuItem 
-                      onClick={() => onShareLink?.('whatsapp')}
+                      onClick={() => onShareLink?.('whatsapp', shareRole)}
                       className="text-xs font-semibold cursor-pointer rounded-lg px-3 py-1.5 text-slate-700 dark:text-slate-300 focus:bg-slate-50 dark:focus:bg-white/[0.06]"
                     >
                       WhatsApp
                     </DropdownMenuItem>
-
+ 
                     <DropdownMenuSeparator className="bg-slate-100 dark:bg-white/[0.06] my-1" />
-
+ 
                     {/* Workspace settings */}
-                    <DropdownMenuItem
-                      onClick={onReset}
-                      className="text-xs font-semibold cursor-pointer rounded-lg px-3 py-1.5 text-red-500 focus:bg-red-50 dark:focus:bg-red-950/30 focus:text-red-600"
-                    >
-                      Clear workspace
-                    </DropdownMenuItem>
+                    {userRole !== 'viewer' && (
+                      <DropdownMenuItem
+                        onClick={onReset}
+                        className="text-xs font-semibold cursor-pointer rounded-lg px-3 py-1.5 text-red-500 focus:bg-red-50 dark:focus:bg-red-950/30 focus:text-red-600"
+                      >
+                        Clear workspace
+                      </DropdownMenuItem>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>

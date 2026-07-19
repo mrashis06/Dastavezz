@@ -192,3 +192,48 @@ export async function getDocumentVersions(uid: string, docId: string): Promise<D
     return [];
   }
 }
+
+export interface CollaboratorPresence {
+  userId: string;
+  displayName: string;
+  photoURL: string | null;
+  role: 'owner' | 'editor' | 'viewer';
+  lastActive: any; // Can resolve as Timestamp or serverTimestamp FieldValue
+}
+
+// Update active user presence document in Firestore
+export async function updateUserPresence(
+  ownerUid: string,
+  docId: string,
+  userId: string,
+  data: {
+    displayName: string;
+    photoURL: string | null;
+    role: 'owner' | 'editor' | 'viewer';
+  }
+): Promise<void> {
+  try {
+    const docRef = doc(db, 'users', ownerUid, 'documents', docId, 'presence', userId);
+    await setDoc(docRef, {
+      userId,
+      ...data,
+      lastActive: serverTimestamp()
+    }, { merge: true });
+  } catch (error) {
+    console.error("Error updating user presence in Firestore:", error);
+  }
+}
+
+// Remove active user presence when they exit the document workspace
+export async function removeUserPresence(
+  ownerUid: string,
+  docId: string,
+  userId: string
+): Promise<void> {
+  try {
+    const docRef = doc(db, 'users', ownerUid, 'documents', docId, 'presence', userId);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error("Error removing user presence from Firestore:", error);
+  }
+}

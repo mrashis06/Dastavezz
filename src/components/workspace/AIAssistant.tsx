@@ -27,6 +27,7 @@ interface AIAssistantProps {
   selectedText?: string;
   wordCount: number;
   onAICheckpoint?: (actionLabel: string, newTitle?: string, newContent?: string) => void;
+  readOnly?: boolean;
 }
 
 type ActionKey = 'improve' | 'professional' | 'summary' | 'title';
@@ -88,7 +89,8 @@ export default function AIAssistant({
   templateId,
   selectedText,
   wordCount,
-  onAICheckpoint
+  onAICheckpoint,
+  readOnly = false
 }: AIAssistantProps) {
   const [aiOutput, setAiOutput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -349,7 +351,7 @@ export default function AIAssistant({
                       )}
                       <button
                         onClick={() => handleAIAction(action.key)}
-                        disabled={isLoading || (!content && action.key !== 'title')}
+                        disabled={isLoading || (!content && action.key !== 'title') || readOnly}
                         className={`flex items-center space-x-1 px-3 py-1.5 rounded-lg text-[10px] font-bold transition cursor-pointer shrink-0 disabled:opacity-40 disabled:cursor-not-allowed ${
                           isThisActive
                             ? 'bg-violet-600 hover:bg-violet-700 text-white shadow-sm'
@@ -425,36 +427,42 @@ export default function AIAssistant({
 
               {/* Action Buttons */}
               <div className="border-t border-slate-100 dark:border-white/[0.06] p-3 space-y-2">
-                <button
-                  onClick={handleApplyToDocument}
-                  className="flex items-center justify-center space-x-2 w-full px-4 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 dark:bg-violet-600 dark:hover:bg-violet-700 text-white text-xs font-bold transition duration-150 cursor-pointer shadow-sm"
-                >
-                  <FileCheck2 className="h-3.5 w-3.5" />
-                  <span>Apply to Document</span>
-                </button>
-                <div className="grid grid-cols-3 gap-1.5">
+                {!readOnly && (
+                  <button
+                    onClick={handleApplyToDocument}
+                    className="flex items-center justify-center space-x-2 w-full px-4 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 dark:bg-violet-600 dark:hover:bg-violet-700 text-white text-xs font-bold transition duration-150 cursor-pointer shadow-sm"
+                  >
+                    <FileCheck2 className="h-3.5 w-3.5" />
+                    <span>Apply to Document</span>
+                  </button>
+                )}
+                <div className={readOnly ? "grid grid-cols-1" : "grid grid-cols-3 gap-1.5"}>
                   <button
                     onClick={handleCopy}
-                    className="flex items-center justify-center space-x-1.5 px-2 py-2 rounded-lg bg-slate-50 dark:bg-white/[0.05] hover:bg-slate-100 dark:hover:bg-white/[0.08] border border-slate-200 dark:border-white/[0.07] text-xs font-semibold text-slate-700 dark:text-slate-300 transition cursor-pointer"
+                    className="flex items-center justify-center space-x-1.5 px-2 py-2 rounded-lg bg-slate-50 dark:bg-white/[0.05] hover:bg-slate-100 dark:hover:bg-white/[0.08] border border-slate-200 dark:border-white/[0.07] text-xs font-semibold text-slate-700 dark:text-slate-300 transition cursor-pointer w-full"
                   >
                     {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
                     <span>{copied ? 'Copied' : 'Copy'}</span>
                   </button>
-                  <button
-                    onClick={handleInsertBelow}
-                    className="flex items-center justify-center space-x-1.5 px-2 py-2 rounded-lg bg-slate-50 dark:bg-white/[0.05] hover:bg-slate-100 dark:hover:bg-white/[0.08] border border-slate-200 dark:border-white/[0.07] text-xs font-semibold text-slate-700 dark:text-slate-300 transition cursor-pointer"
-                  >
-                    <ArrowDownToLine className="h-3.5 w-3.5" />
-                    <span>Insert</span>
-                  </button>
-                  <button
-                    onClick={handleReplaceSelection}
-                    disabled={!selectedText}
-                    className="flex items-center justify-center space-x-1.5 px-2 py-2 rounded-lg bg-slate-50 dark:bg-white/[0.05] hover:bg-slate-100 dark:hover:bg-white/[0.08] border border-slate-200 dark:border-white/[0.07] text-xs font-semibold text-slate-700 dark:text-slate-300 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    <MousePointerClick className="h-3.5 w-3.5" />
-                    <span>Replace</span>
-                  </button>
+                  {!readOnly && (
+                    <>
+                      <button
+                        onClick={handleInsertBelow}
+                        className="flex items-center justify-center space-x-1.5 px-2 py-2 rounded-lg bg-slate-50 dark:bg-white/[0.05] hover:bg-slate-100 dark:hover:bg-white/[0.08] border border-slate-200 dark:border-white/[0.07] text-xs font-semibold text-slate-700 dark:text-slate-300 transition cursor-pointer"
+                      >
+                        <ArrowDownToLine className="h-3.5 w-3.5" />
+                        <span>Insert</span>
+                      </button>
+                      <button
+                        onClick={handleReplaceSelection}
+                        disabled={!selectedText}
+                        className="flex items-center justify-center space-x-1.5 px-2 py-2 rounded-lg bg-slate-50 dark:bg-white/[0.05] hover:bg-slate-100 dark:hover:bg-white/[0.08] border border-slate-200 dark:border-white/[0.07] text-xs font-semibold text-slate-700 dark:text-slate-300 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        <MousePointerClick className="h-3.5 w-3.5" />
+                        <span>Replace</span>
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -488,15 +496,17 @@ export default function AIAssistant({
                       <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate">{suggestion}</span>
                     </div>
                     <div className="flex items-center space-x-1.5 shrink-0 ml-2">
-                      <button
-                        onClick={() => {
-                          onAICheckpoint?.(`AI Title: "${suggestion}"`, suggestion, content);
-                          onTitleChange(suggestion);
-                        }}
-                        className="text-[10px] font-bold text-violet-600 dark:text-violet-400 hover:text-violet-700 bg-violet-50 dark:bg-violet-950/50 px-2.5 py-1 rounded-md transition cursor-pointer border border-violet-100 dark:border-violet-900/50"
-                      >
-                        Use
-                      </button>
+                      {!readOnly && (
+                        <button
+                          onClick={() => {
+                            onAICheckpoint?.(`AI Title: "${suggestion}"`, suggestion, content);
+                            onTitleChange(suggestion);
+                          }}
+                          className="text-[10px] font-bold text-violet-600 dark:text-violet-400 hover:text-violet-700 bg-violet-50 dark:bg-violet-950/50 px-2.5 py-1 rounded-md transition cursor-pointer border border-violet-100 dark:border-violet-900/50"
+                        >
+                          Use
+                        </button>
+                      )}
                       <button
                         onClick={() => handleCopySuggestion(suggestion, idx)}
                         className="p-1 rounded-md hover:bg-slate-200 dark:hover:bg-white/[0.07] text-slate-400 transition cursor-pointer"
