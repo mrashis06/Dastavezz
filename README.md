@@ -41,6 +41,7 @@ Dastavezz was built to solve this middle ground:
 | Feature | Description |
 | :--- | :--- |
 | **Authentication** | Google Sign-In, Email/Password authentication, and profile state sync via Firebase Auth. |
+| **Real-time Collaboration** | Multi-user document editing with Editor/Viewer role controls, Canva-like active collaborator presence avatars, and full audit logs. |
 | **Document Dashboard** | Grid and list views, quick search, title editing, and batch management. |
 | **Markdown Workspace** | Split-pane view with real-time live preview, word and character counters, and undo/redo stacks. |
 | **File Imports** | Support for `.md`, `.txt`, `.docx`, and `.pdf` file parsing into editor content. |

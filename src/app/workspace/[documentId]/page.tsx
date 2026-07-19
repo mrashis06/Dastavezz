@@ -305,10 +305,19 @@ export default function WorkspaceDocumentPage() {
       console.error("Error subscribing to presence subcollection:", error);
     });
 
+    // 3.5 Bind unload listeners for window close, app exit, or swipe away
+    const handleUnload = () => {
+      removeUserPresence(targetOwnerUid, documentId, user.uid);
+    };
+    window.addEventListener('beforeunload', handleUnload);
+    window.addEventListener('pagehide', handleUnload);
+
     // 4. Cleanup presence record on exit
     return () => {
       clearInterval(heartbeatTimer);
       unsubscribe();
+      window.removeEventListener('beforeunload', handleUnload);
+      window.removeEventListener('pagehide', handleUnload);
       removeUserPresence(targetOwnerUid, documentId, user.uid);
     };
   }, [user, loading, documentId, ownerUidParam, userRole]);
