@@ -2,82 +2,18 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
-import { Briefcase, Mail, FileSpreadsheet, FileCode } from 'lucide-react';
-
-interface ElegantCardDef {
-  id: string;
-  title: string;
-  category: string;
-  icon: React.ReactNode;
-  position: { top: string; left?: string; right?: string };
-  rotation: number;
-  duration: number;
-  delay: number;
-  floatY: number;
-}
-
-const ELEGANT_CARDS: ElegantCardDef[] = [
-  {
-    id: 'resume',
-    title: 'Resume',
-    category: 'ATS Format',
-    icon: <Briefcase className="h-3.5 w-3.5 text-violet-400" />,
-    position: { top: '22%', left: '3%' },
-    rotation: -2,
-    duration: 16,
-    delay: 0,
-    floatY: 10,
-  },
-  {
-    id: 'letter',
-    title: 'Business Letter',
-    category: 'Formal Spec',
-    icon: <Mail className="h-3.5 w-3.5 text-emerald-400" />,
-    position: { top: '24%', right: '3%' },
-    rotation: 2,
-    duration: 18,
-    delay: 1.2,
-    floatY: -10,
-  },
-  {
-    id: 'report',
-    title: 'Project Report',
-    category: 'Technical',
-    icon: <FileSpreadsheet className="h-3.5 w-3.5 text-amber-400" />,
-    position: { top: '58%', left: '2%' },
-    rotation: 1.5,
-    duration: 20,
-    delay: 2.4,
-    floatY: 8,
-  },
-  {
-    id: 'pdf-doc',
-    title: 'PDF Document',
-    category: 'Vector Export',
-    icon: <FileCode className="h-3.5 w-3.5 text-rose-400" />,
-    position: { top: '60%', right: '2%' },
-    rotation: -1.5,
-    duration: 17,
-    delay: 0.8,
-    floatY: -10,
-  },
-];
 
 export default function HeroBackground() {
   const shouldReduceMotion = useReducedMotion();
   const { scrollY } = useScroll();
 
-  // Mouse position tracking for subtle parallax
-  const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
+  // Mouse position tracking for subtle spotlight radial glow
   const [mousePosPercent, setMousePosPercent] = useState({ x: 50, y: 35 });
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (shouldReduceMotion) return;
       const { innerWidth, innerHeight } = window;
-      const offsetX = (e.clientX / innerWidth) - 0.5;
-      const offsetY = (e.clientY / innerHeight) - 0.5;
-      setMouseOffset({ x: offsetX, y: offsetY });
       setMousePosPercent({
         x: Math.round((e.clientX / innerWidth) * 100),
         y: Math.round((e.clientY / innerHeight) * 100),
@@ -90,7 +26,6 @@ export default function HeroBackground() {
 
   // Scroll Parallax
   const glowY = useTransform(scrollY, [0, 600], [0, -20]);
-  const paperY = useTransform(scrollY, [0, 600], [0, -12]);
 
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden select-none z-0">
@@ -100,7 +35,7 @@ export default function HeroBackground() {
         <div
           className="absolute inset-0 transition-opacity duration-1000 ease-out"
           style={{
-            background: `radial-gradient(600px circle at ${mousePosPercent.x}% ${mousePosPercent.y}%, rgba(124, 58, 237, 0.05), transparent 75%)`,
+            background: `radial-gradient(650px circle at ${mousePosPercent.x}% ${mousePosPercent.y}%, rgba(124, 58, 237, 0.05), transparent 75%)`,
           }}
         />
       )}
@@ -124,70 +59,12 @@ export default function HeroBackground() {
         }}
       />
 
-      {/* ── 3. ELEGANT MARGIN DOCUMENT CARDS (EXACTLY 4, FAR MARGINS ONLY) ─ */}
-      <motion.div
-        style={{
-          y: shouldReduceMotion ? 0 : paperY,
-          x: mouseOffset.x * 6,
-        }}
-        className="absolute inset-0 w-full h-full will-change-transform"
-      >
-        {ELEGANT_CARDS.map((card) => (
-          <motion.div
-            key={card.id}
-            className="hidden lg:block absolute w-44 rounded-2xl border p-4 shadow-xl backdrop-blur-xl bg-gradient-to-b from-white/[0.06] to-white/[0.02] border-white/[0.08] opacity-[0.14] dark:opacity-[0.18] transition-opacity duration-300 will-change-transform"
-            style={{
-              top: card.position.top,
-              left: card.position.left,
-              right: card.position.right,
-              transform: `rotate(${card.rotation}deg)`,
-            }}
-            animate={
-              shouldReduceMotion
-                ? {}
-                : {
-                    y: [-card.floatY, card.floatY, -card.floatY],
-                    rotate: [card.rotation - 0.8, card.rotation + 0.8, card.rotation - 0.8],
-                  }
-            }
-            transition={{
-              duration: card.duration,
-              repeat: Infinity,
-              delay: card.delay,
-              ease: 'easeInOut',
-            }}
-          >
-            {/* Header */}
-            <div className="flex items-center space-x-2 mb-2.5">
-              <div className="p-1 rounded-md bg-white/[0.08] border border-white/[0.1]">
-                {card.icon}
-              </div>
-              <div className="flex flex-col min-w-0">
-                <span className="text-[10px] font-bold text-slate-200 truncate leading-none">
-                  {card.title}
-                </span>
-                <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-wider leading-tight mt-0.5">
-                  {card.category}
-                </span>
-              </div>
-            </div>
-
-            {/* Skeleton lines */}
-            <div className="space-y-1.5 pt-1">
-              <div className="h-1.5 w-3/4 bg-white/30 rounded-full" />
-              <div className="h-1.5 w-full bg-white/15 rounded-full" />
-              <div className="h-1.5 w-4/5 bg-white/15 rounded-full" />
-            </div>
-          </motion.div>
-        ))}
-      </motion.div>
-
-      {/* ── 4. FAINT NOISE TEXTURE OVERLAY ────────────────────────────────── */}
+      {/* ── 3. FAINT NOISE TEXTURE OVERLAY ────────────────────────────────── */}
       <svg className="absolute inset-0 w-full h-full opacity-[0.02] pointer-events-none mix-blend-overlay">
-        <filter id="heroElegantNoise">
+        <filter id="heroCleanNoise">
           <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" stitchTiles="stitch" />
         </filter>
-        <rect width="100%" height="100%" filter="url(#heroElegantNoise)" />
+        <rect width="100%" height="100%" filter="url(#heroCleanNoise)" />
       </svg>
     </div>
   );

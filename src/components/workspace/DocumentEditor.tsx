@@ -157,9 +157,9 @@ export default function DocumentEditor({
       </div>
 
       {/* Modern Editing Sticky Toolbar */}
-      <div className="sticky top-0 z-10 flex items-center justify-between bg-slate-50 dark:bg-[#111114] border-b border-slate-200 dark:border-white/[0.06] px-4 py-1.5 shrink-0">
+      <div className="sticky top-0 z-10 flex items-center justify-between bg-slate-50 dark:bg-[#111114] border-b border-slate-200 dark:border-white/[0.06] px-3 sm:px-4 py-1.5 shrink-0 overflow-x-auto no-scrollbar">
         <TooltipProvider delay={150}>
-          <div className="flex items-center space-x-1 flex-wrap">
+          <div className="flex items-center space-x-1 shrink-0">
             <Tooltip>
               <TooltipTrigger 
                 onClick={onUndo}

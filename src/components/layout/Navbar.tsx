@@ -235,11 +235,16 @@ export default function Navbar({
           <DropdownMenu>
             <DropdownMenuTrigger className="focus:outline-none cursor-pointer">
               <Avatar className="h-7 w-7 border border-slate-200 dark:border-white/[0.1] hover:scale-105 transition-transform duration-150 cursor-pointer select-none">
-                {profile?.avatar && profile.avatar.startsWith('http') ? (
-                  <AvatarImage src={profile.avatar} alt={profile.fullName || 'User'} />
-                ) : user?.photoURL ? (
-                  <AvatarImage src={user.photoURL} alt={profile?.fullName || user.displayName || 'User'} />
-                ) : null}
+                {(() => {
+                  const providerPhoto = user?.providerData?.find((p) => p.photoURL && p.photoURL.startsWith('http'))?.photoURL;
+                  const avatarUrl = (profile?.avatar && profile.avatar.startsWith('http'))
+                    ? profile.avatar
+                    : providerPhoto || user?.photoURL || null;
+                  
+                  return avatarUrl ? (
+                    <AvatarImage src={avatarUrl} alt={profile?.fullName || user?.displayName || 'User'} />
+                  ) : null;
+                })()}
                 <AvatarFallback 
                   className="text-white dark:text-slate-900 font-bold text-[10px]"
                   style={{

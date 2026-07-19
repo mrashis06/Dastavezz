@@ -70,7 +70,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         unsubscribeProfile = onSnapshot(profileRef, async (snap) => {
           if (snap.exists()) {
-            setProfile(snap.data() as UserProfile);
+            const data = snap.data() as UserProfile;
+            setProfile(data);
+
+            // Auto-sync avatar with Gmail/Google provider photoURL if it changes
+            const providerPhoto = currentUser.providerData?.find((p) => p.photoURL && p.photoURL.startsWith('http'))?.photoURL || currentUser.photoURL || null;
+            if (providerPhoto && data.avatar !== providerPhoto) {
+              try {
+                await updateDoc(profileRef, {
+                  avatar: providerPhoto,
+                  updatedAt: serverTimestamp()
+                });
+              } catch (err) {
+                console.error('Error syncing provider photo to profile:', err);
+              }
+            }
           } else {
             // First-time Google sign-in — create default profile
             const defaultProfile: UserProfile = {

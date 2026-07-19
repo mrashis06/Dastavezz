@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/providers/AuthProvider';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
@@ -18,8 +18,6 @@ import {
   Link as LinkIcon,
   CheckCircle,
   AlertCircle,
-  Upload,
-  ImageIcon,
 } from 'lucide-react';
 import { toast } from '@/utils/toast';
 import { updatePassword, sendEmailVerification } from 'firebase/auth';
@@ -35,7 +33,6 @@ export default function SettingsPage() {
     profile,
     loading,
     updateProfileFields,
-    uploadProfileAvatar,
     linkGoogleAccount,
     linkEmailAccount,
     unlinkProvider,
@@ -45,11 +42,6 @@ export default function SettingsPage() {
   // ── Profile state ─────────────────────────────────────────────────────────
   const [fullName, setFullName] = useState('');
   const [profileLoading, setProfileLoading] = useState(false);
-
-  // ── Avatar upload state ───────────────────────────────────────────────────
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // ── Account linking state ─────────────────────────────────────────────────
   const [emailToLink, setEmailToLink] = useState('');
@@ -92,9 +84,14 @@ export default function SettingsPage() {
   const hasGoogle = providerList.includes('google.com');
   const hasEmail = providerList.includes('password');
 
-  // Current avatar: show upload preview first, then Firestore value, then Google photo
-  const currentAvatar = avatarPreview ?? profile?.avatar ?? user.photoURL ?? null;
-  const isImageUrl = currentAvatar && currentAvatar.startsWith('http');
+  // Find photoURL from providers (e.g. google.com) if top-level photoURL is null
+  const providerPhoto = user?.providerData?.find((p) => p.photoURL && p.photoURL.startsWith('http'))?.photoURL;
+
+  // Current avatar: show Firestore value, then Google provider photo, then top-level photo
+  const currentAvatar = (profile?.avatar && profile.avatar.trim() !== '')
+    ? profile.avatar
+    : providerPhoto || user?.photoURL || null;
+  const isImageUrl = typeof currentAvatar === 'string' && currentAvatar.startsWith('http');
 
   const getInitials = (name: string) =>
     (name || 'U')
@@ -121,28 +118,6 @@ export default function SettingsPage() {
       toast.error(err.message || 'Failed to update profile.');
     } finally {
       setProfileLoading(false);
-    }
-  };
-
-  const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Show local preview immediately
-    const objectUrl = URL.createObjectURL(file);
-    setAvatarPreview(objectUrl);
-    setUploadProgress(0);
-
-    try {
-      await uploadProfileAvatar(file, (pct) => setUploadProgress(pct));
-      toast.success('Profile photo updated!');
-    } catch (err: any) {
-      toast.error(err.message || 'Upload failed. Please try again.');
-      setAvatarPreview(null); // revert preview on failure
-    } finally {
-      setUploadProgress(null);
-      // Reset input so same file can be re-selected
-      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -259,12 +234,6 @@ export default function SettingsPage() {
                 <span>{getInitials(fullName || profile?.fullName || '')}</span>
               )}
             </div>
-            {/* Upload progress ring overlay */}
-            {uploadProgress !== null && (
-              <div className="absolute inset-0 rounded-2xl bg-black/50 flex items-center justify-center">
-                <span className="text-white text-[10px] font-bold">{uploadProgress}%</span>
-              </div>
-            )}
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white leading-tight">
@@ -321,76 +290,7 @@ export default function SettingsPage() {
               </form>
             </div>
 
-            {/* 2. Profile Photo */}
-            <div className="p-6 rounded-3xl bg-white dark:bg-[#111114] border border-slate-200/85 dark:border-white/[0.07] shadow-sm space-y-5">
-              <div>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center mb-1">
-                  <ImageIcon className="h-4 w-4 mr-1.5 text-slate-400" />
-                  Profile Photo
-                </h3>
-                <p className="text-[11px] text-slate-400 dark:text-slate-500">
-                  Upload a JPEG, PNG, WebP, or GIF. Max 5 MB.
-                </p>
-              </div>
-
-              <div className="flex items-center space-x-4">
-                {/* Preview */}
-                <div
-                  className="h-14 w-14 rounded-2xl flex items-center justify-center text-white text-base font-bold shrink-0 overflow-hidden shadow-sm"
-                  style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)' }}
-                >
-                  {isImageUrl ? (
-                    <img src={currentAvatar!} alt="Preview" className="h-full w-full object-cover" />
-                  ) : (
-                    <span>{getInitials(fullName || profile?.fullName || '')}</span>
-                  )}
-                </div>
-
-                <div className="flex flex-col space-y-2">
-                  {/* Hidden file input */}
-                  <input
-                    ref={fileInputRef}
-                    id="avatar-upload"
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp,image/gif"
-                    className="sr-only"
-                    onChange={handleAvatarFileChange}
-                    disabled={uploadProgress !== null}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    disabled={uploadProgress !== null}
-                    onClick={() => fileInputRef.current?.click()}
-                    className="h-9 px-4 text-xs font-semibold border-slate-200 dark:border-white/[0.08] rounded-xl cursor-pointer flex items-center space-x-1.5"
-                  >
-                    {uploadProgress !== null ? (
-                      <>
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        <span>Uploading {uploadProgress}%</span>
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="h-3.5 w-3.5" />
-                        <span>Choose Image</span>
-                      </>
-                    )}
-                  </Button>
-
-                  {/* Progress bar */}
-                  {uploadProgress !== null && (
-                    <div className="w-48 h-1.5 bg-slate-200 dark:bg-white/[0.08] rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-violet-500 transition-all duration-300"
-                        style={{ width: `${uploadProgress}%` }}
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* 3. Password Change */}
+            {/* 2. Password Change */}
             <div className="p-6 rounded-3xl bg-white dark:bg-[#111114] border border-slate-200/85 dark:border-white/[0.07] shadow-sm space-y-5">
               <div>
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center mb-1">

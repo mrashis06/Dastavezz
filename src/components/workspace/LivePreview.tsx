@@ -61,17 +61,17 @@ export default function LivePreview({
     setZoomInput(clamped.toString());
   };
 
-  // Map margins to standard tailwind padding (fallback when margins !== 'custom')
+  // Map margins to responsive padding
   const getMarginClass = (margins: ExportSettings['margins']) => {
     if (margins === 'custom') return '';
     switch (margins) {
       case 'narrow':
-        return 'p-8 sm:p-10';
+        return 'p-4 sm:p-8';
       case 'wide':
-        return 'p-16 sm:p-20';
+        return 'p-6 sm:p-16';
       case 'standard':
       default:
-        return 'p-12 sm:p-14';
+        return 'p-5 sm:p-12';
     }
   };
 
@@ -108,38 +108,38 @@ export default function LivePreview({
       case 'sm':
         return 'text-[11px] prose-sm';
       case 'lg':
-        return 'text-[15px] prose-lg';
+        return 'text-[14px] sm:text-[15px] prose-lg';
       case 'base':
       default:
-        return 'text-[13px] prose-base';
+        return 'text-[12px] sm:text-[13px] prose-base';
     }
   };
 
-  // Calculate paper minHeight and width based on size standard formats and orientation (using 96 DPI standard sizes)
+  // Calculate paper minHeight and width based on size standard formats
   const getPaperDimensions = (pageSize: ExportSettings['pageSize'], orientation: ExportSettings['orientation']) => {
-    let width = 794; // A4 Standard: 210mm = 8.27in = 794px
-    let height = 1123; // A4 Standard: 297mm = 11.69in = 1123px
+    let width = 794;
+    let height = 1123;
 
     switch (pageSize) {
       case 'Letter':
-        width = 816; // 8.5in
-        height = 1056; // 11in
+        width = 816;
+        height = 1056;
         break;
       case 'Legal':
-        width = 816; // 8.5in
-        height = 1344; // 14in
+        width = 816;
+        height = 1344;
         break;
       case 'A3':
-        width = 1123; // 297mm
-        height = 1587; // 420mm
+        width = 1123;
+        height = 1587;
         break;
       case 'A5':
-        width = 559; // 148mm
-        height = 794; // 210mm
+        width = 559;
+        height = 794;
         break;
       case 'B5':
-        width = 665; // 176mm
-        height = 941; // 250mm
+        width = 665;
+        height = 941;
         break;
       case 'A4':
       default:
@@ -171,20 +171,20 @@ export default function LivePreview({
         : 'h-full'
     }`}>
       {/* Live Preview Panel Header & Toolbar */}
-      <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#18181d] px-3.5 py-2.5 shrink-0 sticky top-0 z-10 w-full">
+      <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#18181d] px-3 sm:px-3.5 py-2.5 shrink-0 sticky top-0 z-10 w-full overflow-x-auto no-scrollbar gap-2">
         <div className="flex items-center space-x-1.5 shrink-0">
-          <Eye className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
-          <span className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 select-none whitespace-nowrap">
+          <Eye className="h-4.5 w-4.5 text-indigo-500 dark:text-indigo-400" />
+          <span className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 select-none whitespace-nowrap">
             LIVE PREVIEW
           </span>
         </div>
         
         {/* Quick layout status badges & Zoom controls */}
         <div className="flex items-center space-x-1.5 text-xs text-muted-foreground font-bold flex-nowrap shrink-0">
-          {/* Theme selector select dropdown matching screenshot */}
+          {/* Theme selector */}
           <div className="relative flex items-center shrink-0">
-            <span className="absolute left-2.5 pointer-events-none text-indigo-500 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.18.03.35-.06.38-.24l.58-3.5c.03-.18-.06-.35-.24-.38A6.99 6.99 0 0 1 4 12c0-3.87 3.13-7 7-7s7 3.13 7 7c0 1.94-.78 3.69-2.05 4.95a.25.25 0 0 0 .17.43c2.72 0 4.88-2.16 4.88-4.88A10 10 0 0 0 12 2Z"></path><path d="m14 10-6 6"></path></svg>
+            <span className="absolute left-2 pointer-events-none text-indigo-500 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.18.03.35-.06.38-.24l.58-3.5c.03-.18-.06-.35-.24-.38A6.99 6.99 0 0 1 4 12c0-3.87 3.13-7 7-7s7 3.13 7 7c0 1.94-.78 3.69-2.05 4.95a.25.25 0 0 0 .17.43c2.72 0 4.88-2.16 4.88-4.88A10 10 0 0 0 12 2Z"></path><path d="m14 10-6 6"></path></svg>
             </span>
             <select
               value={settings.theme}
@@ -196,7 +196,7 @@ export default function LivePreview({
                   });
                 }
               }}
-              className="w-[146px] bg-white dark:bg-[#111114] border border-slate-200 dark:border-white/[0.07] text-[11px] font-bold rounded-full pl-7 pr-6 py-1 select-none focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer h-[28px] capitalize text-slate-700 dark:text-slate-300 appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2364748B%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:10px] bg-[right_8px_center] bg-no-repeat"
+              className="w-[135px] sm:w-[146px] bg-white dark:bg-[#111114] border border-slate-200 dark:border-white/[0.07] text-[10px] sm:text-[11px] font-bold rounded-full pl-6 sm:pl-7 pr-5 py-1 select-none focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer h-[28px] capitalize text-slate-700 dark:text-slate-300 appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2364748B%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:10px] bg-[right_6px_center] bg-no-repeat"
             >
               <option value="professional">Professional Theme</option>
               <option value="minimal">Minimal Theme</option>
@@ -204,7 +204,7 @@ export default function LivePreview({
             </select>
           </div>
 
-          {/* Page size select dropdown matching mock */}
+          {/* Page size select */}
           <select
             value={settings.pageSize}
             onChange={(e) => {
@@ -215,7 +215,7 @@ export default function LivePreview({
                 });
               }
             }}
-            className="w-[58px] bg-white dark:bg-[#111114] border border-slate-200 dark:border-white/[0.07] text-[11px] font-bold rounded-lg py-1 select-none focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer h-[28px] appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2364748B%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:10px] bg-[right_8px_center] bg-no-repeat pr-4 pl-2 text-center text-slate-700 dark:text-slate-300"
+            className="w-[52px] sm:w-[58px] bg-white dark:bg-[#111114] border border-slate-200 dark:border-white/[0.07] text-[10px] sm:text-[11px] font-bold rounded-lg py-1 select-none focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer h-[28px] appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2364748B%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:10px] bg-[right_6px_center] bg-no-repeat pr-3 pl-1.5 text-center text-slate-700 dark:text-slate-300"
           >
             <option value="A4">A4</option>
             <option value="Letter">Letter</option>
@@ -227,7 +227,7 @@ export default function LivePreview({
 
           <div className="h-4 w-px bg-slate-200 dark:bg-white/[0.07]" />
 
-          {/* Real-time zoom scaling controls */}
+          {/* Zoom controls */}
           <div className="flex items-center space-x-1 bg-white dark:bg-[#111114] rounded-lg p-0.5 border border-slate-200 dark:border-white/[0.07] select-none h-[28px]">
             <button 
               onClick={handleZoomOut} 
@@ -255,7 +255,7 @@ export default function LivePreview({
                 setIsZoomFocused(false);
                 handleZoomInputSubmit();
               }}
-              className="text-[11px] font-bold w-10 text-center text-foreground font-mono bg-transparent border-0 focus:outline-none focus:ring-0 rounded py-0.5 h-full"
+              className="text-[10px] sm:text-[11px] font-bold w-9 sm:w-10 text-center text-foreground font-mono bg-transparent border-0 focus:outline-none focus:ring-0 rounded py-0.5 h-full"
             />
 
             <button 
@@ -280,8 +280,8 @@ export default function LivePreview({
         </div>
       </div>
 
-      {/* A4 Sheet Viewport Wrapper — dark bg is intentionally darker to make white paper pop */}
-      <div className="flex-1 overflow-auto preview-viewport-scrollbar bg-slate-100 dark:bg-[#060608] p-6 lg:p-8 text-center block whitespace-nowrap">
+      {/* A4 Sheet Viewport Wrapper — Responsively scrollable on mobile */}
+      <div className="flex-1 overflow-auto preview-viewport-scrollbar bg-slate-100 dark:bg-[#060608] p-3 sm:p-6 lg:p-8 text-center block whitespace-nowrap">
         <div 
           style={{ 
             zoom: zoom / 100,
@@ -289,14 +289,14 @@ export default function LivePreview({
             ...paperStyles,
             ...marginStyles
           }}
-          className={`a4-sheet rounded-xl border border-slate-200 dark:border-slate-800 bg-white text-black shadow-[0_4px_24px_rgba(0,0,0,0.06),_0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.5)] inline-block text-left align-top whitespace-normal ${getMarginClass(
+          className={`a4-sheet max-w-full sm:max-w-none rounded-xl border border-slate-200 dark:border-slate-800 bg-white text-black shadow-[0_4px_24px_rgba(0,0,0,0.06),_0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.5)] inline-block text-left align-top whitespace-normal ${getMarginClass(
             settings.margins
           )} ${getThemeClass(settings.theme)} ${getFontSizeClass(settings.fontSize)}`}
         >
           {/* Header watermark in preview */}
-          <div className="flex items-center justify-between border-b border-gray-100 pb-2 mb-6 text-[10px] text-gray-400 tracking-wider uppercase font-mono select-none">
+          <div className="flex items-center justify-between border-b border-gray-100 pb-2 mb-4 sm:mb-6 text-[9px] sm:text-[10px] text-gray-400 tracking-wider uppercase font-mono select-none">
             <span>Dastavezz PDF Preview</span>
-            <span>{title ? title : 'Untitled_Document'}</span>
+            <span className="truncate max-w-[150px]">{title ? title : 'Untitled_Document'}</span>
           </div>
 
           {/* Formatted Content Container */}
@@ -308,4 +308,3 @@ export default function LivePreview({
     </div>
   );
 }
-

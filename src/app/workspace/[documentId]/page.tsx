@@ -6,7 +6,9 @@ import {
   Settings, 
   AlertCircle,
   ArrowLeft,
-  Clock
+  Clock,
+  FileText,
+  Eye
 } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import TemplateSelector from '@/components/workspace/TemplateSelector';
@@ -75,6 +77,7 @@ export default function WorkspaceDocumentPage() {
   // ---------------------------------------------------------------------------
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<'ai' | 'export' | 'history'>('ai');
+  const [mobileTab, setMobileTab] = useState<'editor' | 'preview' | 'ai' | 'history'>('editor');
   const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false);
   const [docLoading, setDocLoading] = useState(true);
   const [docExists, setDocExists] = useState(true);
@@ -806,10 +809,11 @@ export default function WorkspaceDocumentPage() {
         activeTemplateId={activeTemplateId}
       />
 
-      {/* 3. Main Split Work Area */}
-      <main className="flex-1 w-full max-w-full mx-auto px-4 md:px-5 py-4 flex flex-col overflow-hidden bg-slate-50 dark:bg-[#0a0a0c]">
-        <div className="grid grid-cols-1 lg:grid-cols-24 gap-6 flex-1 lg:h-[calc(100vh-270px)] lg:min-h-[500px] overflow-hidden">
-          
+      {/* 3. Main Work Area (Desktop Split Grid + Mobile Tabbed View) */}
+      <main className="flex-1 w-full max-w-full mx-auto px-2 sm:px-4 md:px-5 py-2 sm:py-4 flex flex-col overflow-hidden bg-slate-50 dark:bg-[#0a0a0c] pb-16 lg:pb-0">
+        
+        {/* DESKTOP SPLIT GRID (lg:grid) - 100% UNTOUCHED */}
+        <div className="hidden lg:grid grid-cols-24 gap-6 flex-1 lg:h-[calc(100vh-270px)] lg:min-h-[500px] overflow-hidden">
           {/* Column 1: Document Editor Pane (Span 7) */}
           <div className="lg:col-span-7 flex flex-col h-full overflow-hidden">
             <DocumentEditor
@@ -837,8 +841,6 @@ export default function WorkspaceDocumentPage() {
 
           {/* Column 3: Tabbed Panel - AI / Export / History (Span 5) */}
           <div className="lg:col-span-5 flex flex-col h-full overflow-hidden space-y-4">
-            
-            {/* Control Column Tabs — Premium Navigation */}
             <div className="flex items-stretch bg-white dark:bg-[#18181d] border border-slate-200 dark:border-white/[0.07] rounded-2xl shadow-sm dark:shadow-black/30 overflow-hidden shrink-0">
               {([
                 { key: 'ai', icon: <Sparkles className="h-4 w-4" />, label: 'Dastavezz AI', color: activeTab === 'ai' ? 'from-violet-500 to-indigo-600' : '' },
@@ -866,7 +868,6 @@ export default function WorkspaceDocumentPage() {
               ))}
             </div>
 
-            {/* Tab Body Node */}
             <div className="flex-1 overflow-hidden">
               {activeTab === 'ai' ? (
                 <AIAssistant
@@ -894,14 +895,98 @@ export default function WorkspaceDocumentPage() {
                 />
               )}
             </div>
-
           </div>
+        </div>
 
+        {/* MOBILE DEDICATED VIEW (lg:hidden) - FULL PAGE NATIVE SWAP */}
+        <div className="lg:hidden flex flex-col flex-1 h-[calc(100dvh-185px)] overflow-hidden">
+          {mobileTab === 'editor' && (
+            <div className="flex-1 flex flex-col h-full overflow-hidden">
+              <DocumentEditor
+                content={content}
+                onContentChange={handleContentChange}
+                wordCount={getWordCount()}
+                charCount={getCharCount()}
+                onSelectionChange={setSelectedText}
+                onUndo={handleUndo}
+                onRedo={handleRedo}
+                canUndo={canUndo}
+                canRedo={canRedo}
+              />
+            </div>
+          )}
+
+          {mobileTab === 'preview' && (
+            <div className="flex-1 flex flex-col h-full overflow-hidden">
+              <LivePreview
+                content={content}
+                title={title}
+                settings={exportSettings}
+                onSettingsChange={setExportSettings}
+              />
+            </div>
+          )}
+
+          {mobileTab === 'ai' && (
+            <div className="flex-1 flex flex-col h-full overflow-hidden">
+              <AIAssistant
+                content={content}
+                onContentChange={handleContentChange}
+                onTitleChange={handleTitleChange}
+                title={title}
+                templateId={activeTemplateId}
+                selectedText={selectedText}
+                wordCount={getWordCount()}
+                onAICheckpoint={saveVersionCheckpoint}
+              />
+            </div>
+          )}
+
+          {mobileTab === 'history' && (
+            <div className="flex-1 flex flex-col h-full overflow-hidden">
+              <VersionHistory
+                key={versionRefreshKey}
+                documentId={documentId}
+                onRestore={handleVersionRestore}
+              />
+            </div>
+          )}
         </div>
       </main>
-      
+
+      {/* MOBILE NATIVE BOTTOM NAVIGATION BAR (lg:hidden) */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#121217]/95 border-t border-slate-200 dark:border-white/[0.08] backdrop-blur-xl px-2 py-1.5 flex items-center justify-around shadow-2xl select-none">
+        {[
+          { key: 'editor', label: 'Editor', icon: <FileText className="h-4.5 w-4.5" /> },
+          { key: 'preview', label: 'Preview', icon: <Eye className="h-4.5 w-4.5" /> },
+          { key: 'ai', label: 'AI Assistant', icon: <Sparkles className="h-4.5 w-4.5 text-violet-400" /> },
+          { key: 'history', label: 'History', icon: <Clock className="h-4.5 w-4.5" /> },
+        ].map((tab) => {
+          const isActive = mobileTab === tab.key;
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setMobileTab(tab.key as any)}
+              className={`flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all duration-150 cursor-pointer ${
+                isActive
+                  ? 'text-violet-600 dark:text-violet-400 font-bold'
+                  : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+              }`}
+            >
+              <div className={`transition-transform duration-150 ${isActive ? 'scale-110' : ''}`}>
+                {tab.icon}
+              </div>
+              <span className={`text-[10px] tracking-tight mt-0.5 leading-none ${isActive ? 'font-bold' : 'font-medium'}`}>
+                {tab.label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* 4. Workspace Footer */}
-      <footer className="w-full py-3 border-t border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#0a0a0c] shrink-0 text-center select-none text-[10px] text-slate-400 dark:text-slate-600 font-medium tracking-wide">
+      <footer className="hidden lg:block w-full py-3 border-t border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#0a0a0c] shrink-0 text-center select-none text-[10px] text-slate-400 dark:text-slate-600 font-medium tracking-wide">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between max-w-[1600px] mx-auto px-6">
           <span>© 2026 Dastavezz. All rights reserved.</span>
           <span className="mt-1 sm:mt-0">Made with ❤️ by Dastavezz.</span>

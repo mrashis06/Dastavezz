@@ -28,19 +28,6 @@ export default function Hero() {
 
       <div className="max-w-[1200px] mx-auto text-center relative z-10">
 
-        {/* Eyebrow badge */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="inline-flex items-center space-x-2 mb-8 px-4 py-1.5 rounded-full border border-slate-200/80 dark:border-white/[0.08] bg-white/80 dark:bg-white/[0.04] backdrop-blur-md shadow-sm"
-        >
-          <Sparkles className="h-3.5 w-3.5 text-violet-500" />
-          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 tracking-wide">
-            Next-Gen AI Document Workspace
-          </span>
-        </motion.div>
-
         {/* Main headline */}
         <motion.h1
           initial={{ opacity: 0, y: 15 }}

@@ -53,7 +53,7 @@ export default function LandingPage() {
             {/* Right controls */}
             <div className="flex items-center space-x-2">
               <ThemeToggle variant="icon" />
-              <Link href="/dashboard" onClick={handleWorkspaceAccess}>
+              <Link href="/dashboard" onClick={handleWorkspaceAccess} className="hidden sm:inline-block">
                 <Button
                   size="sm"
                   className="h-8 text-[11px] font-bold bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 cursor-pointer px-4 rounded-xl shadow-none border-0 tracking-wide"
