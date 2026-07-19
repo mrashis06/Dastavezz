@@ -55,10 +55,10 @@ export default function TemplatePicker({
   };
 
   return (
-    <section className="w-full bg-white dark:bg-[#0f0f11] border-b border-slate-200 dark:border-white/[0.06] py-2.5 sm:py-4 px-3 sm:px-6 select-none shrink-0">
+    <section className="w-full bg-white dark:bg-[#0f0f11] border-b border-slate-200 dark:border-white/[0.06] py-1.5 sm:py-4 px-3 sm:px-6 select-none shrink-0">
       <div className="mx-auto max-w-[1600px]">
-        {/* Header row */}
-        <div className="flex items-center justify-between mb-2 sm:mb-3">
+        {/* Header row (Hidden on Mobile) */}
+        <div className="hidden md:flex items-center justify-between mb-2 sm:mb-3">
           <div className="flex items-center space-x-1.5 sm:space-x-2">
             <LayoutGrid className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-400 dark:text-slate-500" />
             <span className="text-[10px] sm:text-[11px] font-bold tracking-widest uppercase text-slate-500 dark:text-slate-400">

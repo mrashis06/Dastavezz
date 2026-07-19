@@ -190,7 +190,7 @@ export default function VersionHistory({ documentId, onRestore }: VersionHistory
   const grouped = groupVersionsByDate(versions);
 
   return (
-    <div className="flex flex-col bg-white dark:bg-[#18181d] border border-slate-200 dark:border-white/[0.07] rounded-2xl overflow-hidden h-full shadow-sm dark:shadow-black/30">
+    <div className="flex flex-col bg-white dark:bg-[#18181d] lg:border lg:border-slate-200 lg:dark:border-white/[0.07] lg:rounded-2xl overflow-hidden h-full lg:shadow-sm dark:shadow-black/30">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-white/[0.06] shrink-0">
         <div className="flex items-center space-x-2.5">
@@ -271,7 +271,15 @@ export default function VersionHistory({ documentId, onRestore }: VersionHistory
                               <p className="text-xs font-semibold text-foreground truncate leading-snug" title={ver.title}>
                                 {ver.title}
                               </p>
-                              <p className="text-[10px] text-muted-foreground mt-0.5 font-medium">{formatTime(ver.timestamp)}</p>
+                              <div className="flex items-center space-x-1.5 text-[10px] text-muted-foreground mt-0.5 font-medium">
+                                <span>{formatTime(ver.timestamp)}</span>
+                                {ver.authorName && (
+                                  <>
+                                    <span>•</span>
+                                    <span className="font-semibold text-slate-500 dark:text-slate-400">By {ver.authorName}</span>
+                                  </>
+                                )}
+                              </div>
                             </div>
                             <span className={`flex items-center space-x-1 text-[9px] font-bold px-1.5 py-0.5 rounded-md border shrink-0 select-none ${meta.badgeClass}`}>
                               {meta.icon}

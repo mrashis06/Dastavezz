@@ -147,9 +147,9 @@ export default function DocumentEditor({
   };
 
   return (
-    <div className="flex flex-col h-full min-h-[450px] lg:min-h-0 bg-white dark:bg-[#18181d] border border-slate-200 dark:border-white/[0.07] rounded-[18px] overflow-hidden shadow-sm dark:shadow-black/30">
-      {/* Editor Panel Header */}
-      <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#18181d] px-5 py-3 shrink-0">
+    <div className="flex flex-col h-full bg-white dark:bg-[#18181d] lg:border lg:border-slate-200 lg:dark:border-white/[0.07] lg:rounded-[18px] overflow-hidden lg:shadow-sm dark:shadow-black/30">
+      {/* Editor Panel Header (Hidden on Mobile) */}
+      <div className="hidden lg:flex items-center justify-between border-b border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#18181d] px-5 py-3 shrink-0">
         <div className="flex items-center space-x-2">
           <FileSignature className="h-5.5 w-5.5 text-slate-500" />
           <h3 className="text-sm font-extrabold uppercase tracking-wider text-muted-foreground select-none">
@@ -188,142 +188,142 @@ export default function DocumentEditor({
           </span>
         </div>
       ) : (
-        <div className="sticky top-0 z-10 flex items-center justify-between bg-slate-50 dark:bg-[#111114] border-b border-slate-200 dark:border-white/[0.06] px-3 sm:px-4 py-1.5 shrink-0 overflow-x-auto no-scrollbar">
+        <div className="sticky top-0 z-10 flex items-center justify-between bg-slate-50 dark:bg-[#111114] border-b border-slate-200 dark:border-white/[0.06] px-2.5 lg:px-4 py-1 lg:py-1.5 shrink-0 overflow-x-auto no-scrollbar flex-nowrap">
           <TooltipProvider delay={150}>
-          <div className="flex items-center space-x-1 shrink-0">
-            <Tooltip>
-              <TooltipTrigger 
-                onClick={onUndo}
-                disabled={!canUndo}
-                className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition cursor-pointer flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <Undo2 className="h-4 w-4" strokeWidth={2.2} />
-              </TooltipTrigger>
-              <TooltipContent className="text-[10px] px-2 py-1">Undo (Ctrl+Z)</TooltipContent>
-            </Tooltip>
+            <div className="flex items-center space-x-0.5 sm:space-x-1 shrink-0">
+              <Tooltip>
+                <TooltipTrigger
+                  onClick={onUndo}
+                  disabled={!canUndo}
+                  className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition cursor-pointer flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <Undo2 className="h-4 w-4" strokeWidth={2.2} />
+                </TooltipTrigger>
+                <TooltipContent className="text-[10px] px-2 py-1">Undo (Ctrl+Z)</TooltipContent>
+              </Tooltip>
 
-            <Tooltip>
-              <TooltipTrigger 
-                onClick={onRedo}
-                disabled={!canRedo}
-                className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition cursor-pointer flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <Redo2 className="h-4 w-4" strokeWidth={2.2} />
-              </TooltipTrigger>
-              <TooltipContent className="text-[10px] px-2 py-1">Redo (Ctrl+Y / Ctrl+Shift+Z)</TooltipContent>
-            </Tooltip>
+              <Tooltip>
+                <TooltipTrigger
+                  onClick={onRedo}
+                  disabled={!canRedo}
+                  className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition cursor-pointer flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <Redo2 className="h-4 w-4" strokeWidth={2.2} />
+                </TooltipTrigger>
+                <TooltipContent className="text-[10px] px-2 py-1">Redo (Ctrl+Y / Ctrl+Shift+Z)</TooltipContent>
+              </Tooltip>
 
-            <div className="h-4 w-px bg-slate-200 dark:bg-slate-850 mx-1" />
-            <Tooltip>
-              <TooltipTrigger 
-                onClick={() => insertMarkdown('bold')} 
-                className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition cursor-pointer flex items-center justify-center"
-              >
-                <Bold className="h-4 w-4" strokeWidth={2.5} />
-              </TooltipTrigger>
-              <TooltipContent className="text-[10px] px-2 py-1">Bold Text</TooltipContent>
-            </Tooltip>
+              <div className="h-4 w-px bg-slate-200 dark:bg-slate-850 mx-1" />
+              <Tooltip>
+                <TooltipTrigger
+                  onClick={() => insertMarkdown('bold')}
+                  className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition cursor-pointer flex items-center justify-center"
+                >
+                  <Bold className="h-4 w-4" strokeWidth={2.5} />
+                </TooltipTrigger>
+                <TooltipContent className="text-[10px] px-2 py-1">Bold Text</TooltipContent>
+              </Tooltip>
 
-            <Tooltip>
-              <TooltipTrigger 
-                onClick={() => insertMarkdown('italic')} 
-                className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition cursor-pointer flex items-center justify-center"
-              >
-                <Italic className="h-4 w-4" strokeWidth={2.5} />
-              </TooltipTrigger>
-              <TooltipContent className="text-[10px] px-2 py-1">Italic Text</TooltipContent>
-            </Tooltip>
+              <Tooltip>
+                <TooltipTrigger
+                  onClick={() => insertMarkdown('italic')}
+                  className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition cursor-pointer flex items-center justify-center"
+                >
+                  <Italic className="h-4 w-4" strokeWidth={2.5} />
+                </TooltipTrigger>
+                <TooltipContent className="text-[10px] px-2 py-1">Italic Text</TooltipContent>
+              </Tooltip>
 
-            <div className="h-4 w-px bg-slate-200 dark:bg-slate-850 mx-1" />
+              <div className="h-4 w-px bg-slate-200 dark:bg-slate-850 mx-1" />
 
-            <Tooltip>
-              <TooltipTrigger 
-                onClick={() => insertMarkdown('heading')} 
-                className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition cursor-pointer flex items-center justify-center"
-              >
-                <Heading className="h-4 w-4" strokeWidth={2.2} />
-              </TooltipTrigger>
-              <TooltipContent className="text-[10px] px-2 py-1">Insert Heading</TooltipContent>
-            </Tooltip>
+              <Tooltip>
+                <TooltipTrigger
+                  onClick={() => insertMarkdown('heading')}
+                  className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition cursor-pointer flex items-center justify-center"
+                >
+                  <Heading className="h-4 w-4" strokeWidth={2.2} />
+                </TooltipTrigger>
+                <TooltipContent className="text-[10px] px-2 py-1">Insert Heading</TooltipContent>
+              </Tooltip>
 
-            <Tooltip>
-              <TooltipTrigger 
-                onClick={() => insertMarkdown('bullet')} 
-                className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition cursor-pointer flex items-center justify-center"
-              >
-                <List className="h-4 w-4" strokeWidth={2.2} />
-              </TooltipTrigger>
-              <TooltipContent className="text-[10px] px-2 py-1">Bullet List</TooltipContent>
-            </Tooltip>
+              <Tooltip>
+                <TooltipTrigger
+                  onClick={() => insertMarkdown('bullet')}
+                  className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition cursor-pointer flex items-center justify-center"
+                >
+                  <List className="h-4 w-4" strokeWidth={2.2} />
+                </TooltipTrigger>
+                <TooltipContent className="text-[10px] px-2 py-1">Bullet List</TooltipContent>
+              </Tooltip>
 
-            <Tooltip>
-              <TooltipTrigger 
-                onClick={() => insertMarkdown('number')} 
-                className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition cursor-pointer flex items-center justify-center"
-              >
-                <ListOrdered className="h-4 w-4" strokeWidth={2.2} />
-              </TooltipTrigger>
-              <TooltipContent className="text-[10px] px-2 py-1">Numbered List</TooltipContent>
-            </Tooltip>
+              <Tooltip>
+                <TooltipTrigger
+                  onClick={() => insertMarkdown('number')}
+                  className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition cursor-pointer flex items-center justify-center"
+                >
+                  <ListOrdered className="h-4 w-4" strokeWidth={2.2} />
+                </TooltipTrigger>
+                <TooltipContent className="text-[10px] px-2 py-1">Numbered List</TooltipContent>
+              </Tooltip>
 
-            <div className="h-4 w-px bg-slate-200 dark:bg-slate-850 mx-1" />
+              <div className="h-4 w-px bg-slate-200 dark:bg-slate-850 mx-1" />
 
-            <Tooltip>
-              <TooltipTrigger 
-                onClick={() => insertMarkdown('table')} 
-                className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition cursor-pointer flex items-center justify-center"
-              >
-                <Table className="h-4 w-4" strokeWidth={2.2} />
-              </TooltipTrigger>
-              <TooltipContent className="text-[10px] px-2 py-1">Insert Table</TooltipContent>
-            </Tooltip>
+              <Tooltip>
+                <TooltipTrigger
+                  onClick={() => insertMarkdown('table')}
+                  className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition cursor-pointer flex items-center justify-center"
+                >
+                  <Table className="h-4 w-4" strokeWidth={2.2} />
+                </TooltipTrigger>
+                <TooltipContent className="text-[10px] px-2 py-1">Insert Table</TooltipContent>
+              </Tooltip>
 
-            <Tooltip>
-              <TooltipTrigger 
-                onClick={() => insertMarkdown('hr')} 
-                className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition cursor-pointer flex items-center justify-center"
-              >
-                <Minus className="h-4 w-4" strokeWidth={2.2} />
-              </TooltipTrigger>
-              <TooltipContent className="text-[10px] px-2 py-1">Horizontal Rule</TooltipContent>
-            </Tooltip>
+              <Tooltip>
+                <TooltipTrigger
+                  onClick={() => insertMarkdown('hr')}
+                  className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition cursor-pointer flex items-center justify-center"
+                >
+                  <Minus className="h-4 w-4" strokeWidth={2.2} />
+                </TooltipTrigger>
+                <TooltipContent className="text-[10px] px-2 py-1">Horizontal Rule</TooltipContent>
+              </Tooltip>
 
-            <Tooltip>
-              <TooltipTrigger 
-                onClick={() => insertMarkdown('pagebreak')} 
-                className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition cursor-pointer flex items-center justify-center"
-              >
-                <Scissors className="h-4 w-4 text-indigo-500" strokeWidth={2.2} />
-              </TooltipTrigger>
-              <TooltipContent className="text-[10px] px-2 py-1 font-semibold font-sans">Page Break (Markdown Comment)</TooltipContent>
-            </Tooltip>
+              <Tooltip>
+                <TooltipTrigger
+                  onClick={() => insertMarkdown('pagebreak')}
+                  className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition cursor-pointer flex items-center justify-center"
+                >
+                  <Scissors className="h-4 w-4 text-indigo-500" strokeWidth={2.2} />
+                </TooltipTrigger>
+                <TooltipContent className="text-[10px] px-2 py-1 font-semibold font-sans">Page Break (Markdown Comment)</TooltipContent>
+              </Tooltip>
 
-            <div className="h-4 w-px bg-slate-200 dark:bg-slate-850 mx-1" />
+              <div className="h-4 w-px bg-slate-200 dark:bg-slate-850 mx-1" />
 
-            <Tooltip>
-              <TooltipTrigger 
-                onClick={() => insertMarkdown('link')} 
-                className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition cursor-pointer flex items-center justify-center"
-              >
-                {/* Custom inline Link icon */}
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-              </TooltipTrigger>
-              <TooltipContent className="text-[10px] px-2 py-1">Hyperlink</TooltipContent>
-            </Tooltip>
+              <Tooltip>
+                <TooltipTrigger
+                  onClick={() => insertMarkdown('link')}
+                  className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition cursor-pointer flex items-center justify-center"
+                >
+                  {/* Custom inline Link icon */}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                </TooltipTrigger>
+                <TooltipContent className="text-[10px] px-2 py-1">Hyperlink</TooltipContent>
+              </Tooltip>
 
-            <Tooltip>
-              <TooltipTrigger 
-                onClick={() => insertMarkdown('code')} 
-                className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition cursor-pointer flex items-center justify-center"
-              >
-                {/* Code icon */}
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-              </TooltipTrigger>
-              <TooltipContent className="text-[10px] px-2 py-1">Code Block</TooltipContent>
-            </Tooltip>
-          </div>
-        </TooltipProvider>
-      </div>
+              <Tooltip>
+                <TooltipTrigger
+                  onClick={() => insertMarkdown('code')}
+                  className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition cursor-pointer flex items-center justify-center"
+                >
+                  {/* Code icon */}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                </TooltipTrigger>
+                <TooltipContent className="text-[10px] px-2 py-1">Code Block</TooltipContent>
+              </Tooltip>
+            </div>
+          </TooltipProvider>
+        </div>
       )}
 
       {/* Main Edit Form Field */}
@@ -339,13 +339,13 @@ export default function DocumentEditor({
           onKeyUp={handleSelectionChange}
           onMouseUp={handleSelectionChange}
           readOnly={readOnly}
-          className="w-full h-full p-6 bg-transparent text-sm leading-relaxed text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none resize-none font-mono overflow-y-auto preview-viewport-scrollbar editor-textarea read-only:opacity-75 read-only:cursor-default"
+          className="w-full h-full px-4 py-3 sm:px-6 sm:py-5 bg-transparent text-sm leading-relaxed text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none resize-none font-mono overflow-y-auto preview-viewport-scrollbar editor-textarea read-only:opacity-75 read-only:cursor-default"
           placeholder={readOnly ? "No document content exists yet." : "# Write your document outline here in Markdown...&#10;&#10;Use standard headings, bullet lists, tables, and spacing. Choose a layout theme on the right, or let Gemini AI help you rewrite and improve your content tone!"}
         />
       </div>
 
-      {/* Editor Footer Panel Metadata */}
-      <div className="flex items-center justify-between border-t border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#18181d] px-5 py-2.5 shrink-0 text-xs text-slate-500 dark:text-slate-500 font-semibold select-none">
+      {/* Editor Footer Panel Metadata (Hidden on Mobile) */}
+      <div className="hidden lg:flex items-center justify-between border-t border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#18181d] px-5 py-2.5 shrink-0 text-xs text-slate-500 dark:text-slate-500 font-semibold select-none">
         <div className="flex items-center space-x-4">
           <span>
             Words: <strong className="text-foreground">{wordCount}</strong>

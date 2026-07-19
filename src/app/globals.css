@@ -355,15 +355,17 @@
 }
 .ai-glow { animation: pulse-glow 3s infinite ease-in-out; }
 
-/* ── Preview viewport scrollbar ─────────────────────────────────────────── */
-.preview-viewport-scrollbar::-webkit-scrollbar { width: 10px; display: block; }
-.preview-viewport-scrollbar::-webkit-scrollbar-track   { background: #E5E7EB; }
-.preview-viewport-scrollbar::-webkit-scrollbar-thumb   { background: #9CA3AF; border-radius: 4px; }
-.preview-viewport-scrollbar::-webkit-scrollbar-thumb:hover { background: #6B7280; }
+/* ── Preview viewport scrollbar (Desktop only) ──────────────────────────── */
+@media (min-width: 1024px) {
+  .preview-viewport-scrollbar::-webkit-scrollbar { width: 10px; height: 10px; display: block; }
+  .preview-viewport-scrollbar::-webkit-scrollbar-track   { background: #E5E7EB; }
+  .preview-viewport-scrollbar::-webkit-scrollbar-thumb   { background: #9CA3AF; border-radius: 4px; }
+  .preview-viewport-scrollbar::-webkit-scrollbar-thumb:hover { background: #6B7280; }
 
-.dark .preview-viewport-scrollbar::-webkit-scrollbar-track  { background: #18181d; }
-.dark .preview-viewport-scrollbar::-webkit-scrollbar-thumb  { background: #3f3f46; }
-.dark .preview-viewport-scrollbar::-webkit-scrollbar-thumb:hover { background: #52525b; }
+  .dark .preview-viewport-scrollbar::-webkit-scrollbar-track  { background: #18181d; }
+  .dark .preview-viewport-scrollbar::-webkit-scrollbar-thumb  { background: #3f3f46; }
+  .dark .preview-viewport-scrollbar::-webkit-scrollbar-thumb:hover { background: #52525b; }
+}
 
 /* ── Editor textarea — IDE-like dark mode ───────────────────────────────── */
 .dark .editor-textarea {

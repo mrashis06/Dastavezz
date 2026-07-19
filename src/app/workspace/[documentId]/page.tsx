@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { 
-  Sparkles, 
-  Settings, 
+import {
+  Sparkles,
+  Settings,
   AlertCircle,
   ArrowLeft,
   Clock,
@@ -71,7 +71,7 @@ export default function WorkspaceDocumentPage() {
   const [content, setContent] = useState('');
   const [activeTemplateId, setActiveTemplateId] = useState<string | null>(null);
   const [selectedText, setSelectedText] = useState('');
-  
+
   // Exporter layout state
   const [exportSettings, setExportSettings] = useState<ExportSettings>({
     pageSize: 'A4',
@@ -276,12 +276,12 @@ export default function WorkspaceDocumentPage() {
         // Ignore self in the display list
         if (snap.id === user.uid) return;
 
-        // Check if lastActive timestamp is within the last 60 seconds
+        // Check if lastActive timestamp is within the last 10 minutes
         const lastActive = data.lastActive;
         let isActive = false;
         if (lastActive) {
           const lastActiveMs = lastActive.toMillis ? lastActive.toMillis() : (lastActive.seconds * 1000);
-          if (nowMs - lastActiveMs < 60000) {
+          if (nowMs - lastActiveMs < 600000) {
             isActive = true;
           }
         } else {
@@ -328,7 +328,7 @@ export default function WorkspaceDocumentPage() {
     const unsubscribe = onSnapshot(docRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
-        
+
         // Only update local state if:
         // 1. It is the first load, OR
         // 2. The edit was made by a different user to prevent cursor jumping
@@ -386,7 +386,7 @@ export default function WorkspaceDocumentPage() {
 
     const targetOwnerUid = ownerUidParam || user.uid;
     const docRef = doc(db, 'users', targetOwnerUid, 'documents', documentId);
-    
+
     const savePendingTimer = setTimeout(() => {
       setIsSaving(true);
     }, 0);
@@ -421,13 +421,15 @@ export default function WorkspaceDocumentPage() {
   const lastVersionedTitle = useRef('');
 
   useEffect(() => {
-    if (!isInitialLoadComplete || !user || !documentId || !docExists) return;
+    if (!isInitialLoadComplete || !user || !documentId || !docExists || userRole === 'viewer') return;
 
     const timer = setInterval(async () => {
       const hasChanged = content !== lastVersionedContent.current || title !== lastVersionedTitle.current;
       if (hasChanged && (content.trim() || title.trim())) {
+        const targetOwnerUid = ownerUidParam || user.uid;
+        const authorName = user.displayName || user.email?.split('@')[0] || 'Collaborator';
         try {
-          await createDocumentVersion(user.uid, documentId, title, content, 'Auto checkpoint');
+          await createDocumentVersion(targetOwnerUid, documentId, title, content, 'Auto checkpoint', authorName);
           lastVersionedContent.current = content;
           lastVersionedTitle.current = title;
           setVersionRefreshKey(k => k + 1);
@@ -438,7 +440,7 @@ export default function WorkspaceDocumentPage() {
     }, 3 * 60 * 1000); // every 3 minutes
 
     return () => clearInterval(timer);
-  }, [isInitialLoadComplete, user, documentId, docExists, content, title]);
+  }, [isInitialLoadComplete, user, documentId, docExists, content, title, ownerUidParam, userRole]);
 
   // ---------------------------------------------------------------------------
   // Save a Firestore version checkpoint (used by AI & template actions)
@@ -447,13 +449,15 @@ export default function WorkspaceDocumentPage() {
     if (!user || !documentId) return;
     const snapshotTitle = newTitle ?? title;
     const snapshotContent = newContent ?? content;
+    const targetOwnerUid = ownerUidParam || user.uid;
+    const authorName = user.displayName || user.email?.split('@')[0] || 'Collaborator';
     try {
-      await createDocumentVersion(user.uid, documentId, snapshotTitle, snapshotContent, actionLabel);
+      await createDocumentVersion(targetOwnerUid, documentId, snapshotTitle, snapshotContent, actionLabel, authorName);
       setVersionRefreshKey(k => k + 1);
     } catch (err) {
       console.error('Version checkpoint failed:', err);
     }
-  }, [user, documentId, title, content]);
+  }, [user, documentId, title, content, ownerUidParam]);
 
   // ---------------------------------------------------------------------------
   // Handle Version Restore
@@ -472,7 +476,7 @@ export default function WorkspaceDocumentPage() {
 
     // 2. Save the current state as a new version before overwriting
     await saveVersionCheckpoint('Checkpoint before restore', title, content);
-    
+
     // 3. Push current state onto undo stack
     pushUndo({ title, content });
 
@@ -608,10 +612,10 @@ export default function WorkspaceDocumentPage() {
       } else {
         const { compileMarkdownToHtml } = await import('@/utils/markdown');
         const compiledHtml = compileMarkdownToHtml(content);
-        
+
         const fontName = exportSettings.theme === 'minimal' ? 'Courier New' : exportSettings.theme === 'academic' ? 'Georgia' : 'Arial';
         const fontSizePt = exportSettings.fontSize === 'sm' ? '10.5pt' : exportSettings.fontSize === 'lg' ? '13.5pt' : '11.5pt';
-        
+
         const docHtml = `
           <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
           <head>
@@ -734,7 +738,7 @@ export default function WorkspaceDocumentPage() {
         const compiledHtml = compileMarkdownToHtml(content);
         const fontName = exportSettings.theme === 'minimal' ? 'Courier New' : exportSettings.theme === 'academic' ? 'Georgia' : 'Arial';
         const fontSizePt = exportSettings.fontSize === 'sm' ? '10.5pt' : exportSettings.fontSize === 'lg' ? '13.5pt' : '11.5pt';
-        
+
         const docHtml = `
           <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
           <head>
@@ -807,7 +811,7 @@ export default function WorkspaceDocumentPage() {
     const baseUrl = `${window.location.origin}${window.location.pathname}`;
     const docUrl = `${baseUrl}?owner=${user.uid}&role=${role}`;
     const text = `Collaborate with me on this document on Dastavezz ("${title}") as an ${role === 'editor' ? 'Editor' : 'Viewer'}:\nLink: ${docUrl}`;
-    
+
     if (platform === 'link') {
       navigator.clipboard.writeText(docUrl);
       toast.success(`Share Link (${role === 'editor' ? 'Editor' : 'Viewer'}) copied to clipboard!`);
@@ -884,7 +888,7 @@ export default function WorkspaceDocumentPage() {
   // Main Editor Layout
   // ---------------------------------------------------------------------------
   return (
-    <div className="flex flex-col min-h-screen lg:h-screen lg:overflow-hidden bg-background text-foreground font-sans">
+    <div className="flex flex-col h-[100dvh] overflow-hidden bg-background text-foreground font-sans">
       {/* 1. Global Navigation Bar */}
       <Navbar
         title={title}
@@ -909,8 +913,8 @@ export default function WorkspaceDocumentPage() {
       </div>
 
       {/* 3. Main Work Area (Desktop Split Grid + Mobile Tabbed View) */}
-      <main className="flex-1 w-full max-w-full mx-auto px-2 sm:px-4 md:px-5 py-2 sm:py-4 flex flex-col lg:overflow-hidden bg-slate-50 dark:bg-[#0a0a0c] pb-16 lg:pb-0">
-        
+      <main className="flex-1 w-full max-w-full mx-auto px-0 lg:px-5 py-0 lg:py-4 flex flex-col overflow-hidden bg-slate-50 dark:bg-[#0a0a0c] pb-16 lg:pb-0">
+
         {/* DESKTOP SPLIT GRID (lg:grid) - 100% UNTOUCHED */}
         <div className="hidden lg:grid grid-cols-24 gap-6 flex-1 lg:h-[calc(100vh-270px)] lg:min-h-[500px] overflow-hidden">
           {/* Column 1: Document Editor Pane (Span 7) */}
@@ -950,13 +954,11 @@ export default function WorkspaceDocumentPage() {
                 <button
                   key={key}
                   onClick={() => setActiveTab(key)}
-                  className={`relative flex-1 flex flex-col items-center justify-center space-y-1 py-3.5 px-2 text-center transition-all duration-200 cursor-pointer ${
-                    idx > 0 ? 'border-l border-slate-100 dark:border-white/[0.05]' : ''
-                  } ${
-                    activeTab === key
+                  className={`relative flex-1 flex flex-col items-center justify-center space-y-1 py-3.5 px-2 text-center transition-all duration-200 cursor-pointer ${idx > 0 ? 'border-l border-slate-100 dark:border-white/[0.05]' : ''
+                    } ${activeTab === key
                       ? 'bg-gradient-to-b ' + color + ' text-white shadow-sm'
                       : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.04]'
-                  }`}
+                    }`}
                 >
                   <div className={`transition-transform duration-200 ${activeTab === key ? 'scale-110' : ''}`}>
                     {icon}
@@ -1000,9 +1002,9 @@ export default function WorkspaceDocumentPage() {
         </div>
 
         {/* MOBILE DEDICATED VIEW (lg:hidden) - FULL PAGE NATIVE SWAP */}
-        <div className="lg:hidden flex flex-col flex-1 min-h-0">
+        <div className="lg:hidden flex flex-col flex-1 h-full min-h-0 overflow-hidden">
           {mobileTab === 'editor' && (
-            <div className="flex-1 flex flex-col min-h-[480px]">
+            <div className="flex-1 flex flex-col min-h-0 h-full overflow-hidden">
               <DocumentEditor
                 content={content}
                 onContentChange={handleContentChange}
@@ -1019,7 +1021,7 @@ export default function WorkspaceDocumentPage() {
           )}
 
           {mobileTab === 'preview' && (
-            <div className="flex-1 flex flex-col min-h-[600px]">
+            <div className="flex-1 flex flex-col min-h-0 h-full overflow-hidden">
               <LivePreview
                 content={content}
                 title={title}
@@ -1030,7 +1032,7 @@ export default function WorkspaceDocumentPage() {
           )}
 
           {mobileTab === 'ai' && (
-            <div className="flex-1 flex flex-col min-h-[500px]">
+            <div className="flex-1 flex flex-col min-h-0 h-full overflow-hidden">
               <AIAssistant
                 content={content}
                 onContentChange={handleContentChange}
@@ -1046,7 +1048,7 @@ export default function WorkspaceDocumentPage() {
           )}
 
           {mobileTab === 'history' && (
-            <div className="flex-1 flex flex-col min-h-[420px]">
+            <div className="flex-1 flex flex-col min-h-0 h-full overflow-hidden">
               <VersionHistory
                 key={versionRefreshKey}
                 documentId={documentId}
@@ -1071,11 +1073,10 @@ export default function WorkspaceDocumentPage() {
               key={tab.key}
               type="button"
               onClick={() => setMobileTab(tab.key as any)}
-              className={`flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all duration-150 cursor-pointer ${
-                isActive
+              className={`flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all duration-150 cursor-pointer ${isActive
                   ? 'text-violet-600 dark:text-violet-400 font-bold'
                   : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-              }`}
+                }`}
             >
               <div className={`transition-transform duration-150 ${isActive ? 'scale-110' : ''}`}>
                 {tab.icon}

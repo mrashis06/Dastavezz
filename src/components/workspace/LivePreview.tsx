@@ -23,6 +23,30 @@ export default function LivePreview({
   const [isZoomFocused, setIsZoomFocused] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
+  // Set default zoom on mobile to fit screen width
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        // Mobile/Tablet screen width
+        const screenWidth = window.innerWidth;
+        const padding = 32; // padding space
+        const sheetWidth = 794; // A4 default width
+        const fitZoom = Math.floor(((screenWidth - padding) / sheetWidth) * 100);
+        const clampedZoom = Math.max(35, Math.min(100, fitZoom));
+        setZoom(clampedZoom);
+        setZoomInput(clampedZoom.toString());
+      } else {
+        // Desktop default zoom
+        setZoom(85);
+        setZoomInput('85');
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Listen for Escape key to exit fullscreen mode
   React.useEffect(() => {
     if (!isFullscreen) return;
@@ -165,10 +189,10 @@ export default function LivePreview({
   const marginStyles = getMarginStyle(settings.margins, settings.customMargins);
 
   return (
-    <div className={`flex flex-col bg-white dark:bg-[#18181d] border border-slate-200 dark:border-white/[0.07] rounded-[18px] overflow-hidden shadow-sm dark:shadow-black/30 transition-all duration-300 ${
+    <div className={`flex flex-col bg-white dark:bg-[#18181d] lg:border lg:border-slate-200 lg:dark:border-white/[0.07] lg:rounded-[18px] overflow-hidden lg:shadow-sm dark:shadow-black/30 transition-all duration-300 ${
       isFullscreen 
         ? 'fixed inset-0 z-50 rounded-none border-0 w-screen h-screen' 
-        : 'h-full min-h-[600px] lg:min-h-0'
+        : 'h-full'
     }`}>
       {/* Live Preview Panel Header & Toolbar */}
       <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#18181d] px-3 sm:px-3.5 py-2.5 shrink-0 sticky top-0 z-10 w-full overflow-x-auto no-scrollbar gap-2">
@@ -281,7 +305,10 @@ export default function LivePreview({
       </div>
 
       {/* A4 Sheet Viewport Wrapper — Responsively scrollable on mobile */}
-      <div className="flex-1 overflow-auto preview-viewport-scrollbar bg-slate-100 dark:bg-[#060608] p-3 sm:p-6 lg:p-8 text-center block whitespace-nowrap">
+      <div 
+        style={{ WebkitOverflowScrolling: 'touch' }} 
+        className="flex-1 overflow-auto preview-viewport-scrollbar bg-slate-100 dark:bg-[#060608] p-3 sm:p-6 lg:p-8 text-center block whitespace-nowrap"
+      >
         <div 
           style={{ 
             zoom: zoom / 100,
@@ -289,7 +316,7 @@ export default function LivePreview({
             ...paperStyles,
             ...marginStyles
           }}
-          className={`a4-sheet max-w-full sm:max-w-none rounded-xl border border-slate-200 dark:border-slate-800 bg-white text-black shadow-[0_4px_24px_rgba(0,0,0,0.06),_0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.5)] inline-block text-left align-top whitespace-normal ${getMarginClass(
+          className={`a4-sheet max-w-none rounded-xl border border-slate-200 dark:border-slate-800 bg-white text-black shadow-[0_4px_24px_rgba(0,0,0,0.06),_0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.5)] inline-block text-left align-top whitespace-normal ${getMarginClass(
             settings.margins
           )} ${getThemeClass(settings.theme)} ${getFontSizeClass(settings.fontSize)}`}
         >

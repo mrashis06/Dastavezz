@@ -284,7 +284,7 @@ export default function AIAssistant({
       )}
 
       {/* ─── Main Panel ──────────────────────────────────────────────────────── */}
-      <div className="flex flex-col bg-white dark:bg-[#18181d] border border-slate-200 dark:border-white/[0.07] rounded-2xl overflow-hidden h-full shadow-sm dark:shadow-black/30">
+      <div className="flex flex-col bg-white dark:bg-[#18181d] lg:border lg:border-slate-200 lg:dark:border-white/[0.07] lg:rounded-2xl overflow-hidden h-full lg:shadow-sm dark:shadow-black/30">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-white/[0.06] shrink-0">
           <div className="flex items-center space-x-2.5">

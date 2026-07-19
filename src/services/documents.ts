@@ -144,7 +144,8 @@ export async function createDocumentVersion(
   docId: string,
   title: string,
   content: string,
-  action: string
+  action: string,
+  authorName?: string
 ): Promise<string> {
   try {
     const colRef = collection(db, 'users', uid, 'documents', docId, 'versions');
@@ -158,6 +159,7 @@ export async function createDocumentVersion(
       content,
       action,
       previewSnippet,
+      authorName: authorName || 'System',
       timestamp: serverTimestamp()
     });
     return docRef.id;
@@ -183,7 +185,8 @@ export async function getDocumentVersions(uid: string, docId: string): Promise<D
         content: data.content ?? '',
         action: data.action ?? 'Manual Edit',
         previewSnippet: data.previewSnippet ?? '',
-        timestamp: data.timestamp
+        timestamp: data.timestamp,
+        authorName: data.authorName ?? 'Collaborator'
       });
     });
     return versions;

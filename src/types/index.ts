@@ -43,6 +43,7 @@ export interface DocumentVersion {
   content: string;
   title: string;
   previewSnippet: string;
+  authorName?: string;
 }
 
 export interface UserProfile {
