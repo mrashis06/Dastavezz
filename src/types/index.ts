@@ -45,4 +45,12 @@ export interface DocumentVersion {
   previewSnippet: string;
 }
 
-
+export interface UserProfile {
+  fullName: string;
+  email: string | null;
+  provider: 'email' | 'google';
+  emailVerified: boolean;
+  avatar: string | null;
+  createdAt: any;
+  updatedAt: any;
+}

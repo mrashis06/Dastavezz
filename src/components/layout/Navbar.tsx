@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { FileText, RotateCcw, Sparkles, Settings as SettingsIcon, Download, Share2, LogOut, ChevronLeft, Loader2 } from 'lucide-react';
+import { FileText, RotateCcw, Sparkles, Settings as SettingsIcon, Download, Share2, LogOut, ChevronLeft, Loader2, Settings } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -14,6 +14,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/providers/AuthProvider';
 import ThemeToggle from '@/components/ui/ThemeToggle';
+import { useRouter } from 'next/navigation';
+
+import DastavezzIcon from '@/components/brand/DastavezzIcon';
 
 interface NavbarProps {
   title: string;
@@ -38,7 +41,8 @@ export default function Navbar({
   onShareFile,
   onShareLink
 }: NavbarProps) {
-  const { user, signOutUser } = useAuth();
+  const { user, profile, signOutUser } = useAuth();
+  const router = useRouter();
 
   const getInitials = (name: string) => {
     if (!name) return 'US';
@@ -52,10 +56,8 @@ export default function Navbar({
         {/* ── Left: Brand + Back ───────────────────────────────────────────── */}
         <div className="flex items-center space-x-2 shrink-0">
           {/* Brand mark */}
-          <Link href="/" className="flex items-center space-x-2.5 hover:opacity-90 transition-opacity">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-900 dark:bg-white shadow-sm shrink-0">
-              <Sparkles className="h-3.5 w-3.5 text-white dark:text-slate-900" />
-            </div>
+          <Link href={user ? "/dashboard" : "/"} className="flex items-center space-x-2 hover:opacity-90 transition-opacity">
+            <DastavezzIcon size={26} />
             <span className="text-sm font-bold text-slate-900 dark:text-white tracking-tight hidden sm:block">Dastavezz</span>
           </Link>
 
@@ -233,21 +235,41 @@ export default function Navbar({
           <DropdownMenu>
             <DropdownMenuTrigger className="focus:outline-none cursor-pointer">
               <Avatar className="h-7 w-7 border border-slate-200 dark:border-white/[0.1] hover:scale-105 transition-transform duration-150 cursor-pointer select-none">
-                {user?.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />}
-                <AvatarFallback className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-[10px]">
-                  {getInitials(user?.displayName || user?.email || '')}
+                {profile?.avatar && profile.avatar.startsWith('http') ? (
+                  <AvatarImage src={profile.avatar} alt={profile.fullName || 'User'} />
+                ) : user?.photoURL ? (
+                  <AvatarImage src={user.photoURL} alt={profile?.fullName || user.displayName || 'User'} />
+                ) : null}
+                <AvatarFallback 
+                  className="text-white dark:text-slate-900 font-bold text-[10px]"
+                  style={{
+                    background: profile?.avatar && profile.avatar.startsWith('linear-gradient') ? profile.avatar : 'linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)',
+                    color: '#ffffff'
+                  }}
+                >
+                  {getInitials(profile?.fullName || user?.displayName || user?.email || '')}
                 </AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-52 rounded-xl border-slate-200 dark:border-white/[0.1] bg-white dark:bg-[#18181d] shadow-xl shadow-black/10 p-1">
               <div className="flex flex-col px-3 py-2.5">
-                <span className="font-semibold text-xs text-slate-900 dark:text-white truncate">{user?.displayName || 'User'}</span>
-                <span className="text-[10px] text-slate-400 dark:text-slate-500 truncate font-normal mt-0.5">{user?.email}</span>
+                <span className="font-semibold text-xs text-slate-900 dark:text-white truncate">{profile?.fullName || user?.displayName || 'User'}</span>
+                <span className="text-[10px] text-slate-400 dark:text-slate-500 truncate font-normal mt-0.5">{profile?.email || user?.email}</span>
               </div>
+              <DropdownMenuSeparator className="bg-slate-100 dark:bg-white/[0.06] my-1" />
+              
+              <DropdownMenuItem
+                onClick={() => router.push('/settings')}
+                className="text-xs font-medium cursor-pointer rounded-lg px-3 py-2 flex items-center space-x-2 text-slate-700 dark:text-slate-350 focus:bg-slate-50 dark:focus:bg-white/[0.06]"
+              >
+                <Settings className="h-3.5 w-3.5" />
+                <span>Account Settings</span>
+              </DropdownMenuItem>
+
               <DropdownMenuSeparator className="bg-slate-100 dark:bg-white/[0.06] my-1" />
               <DropdownMenuItem
                 onClick={signOutUser}
-                className="text-xs font-medium cursor-pointer rounded-lg px-3 py-2 flex items-center space-x-2 text-slate-500 dark:text-slate-400 hover:text-red-500 focus:bg-slate-50 dark:focus:bg-white/[0.06] focus:text-red-500"
+                className="text-xs font-medium cursor-pointer rounded-lg px-3 py-2 flex items-center space-x-2 text-slate-500 dark:text-slate-450 hover:text-red-500 focus:bg-slate-50 dark:focus:bg-white/[0.06] focus:text-red-500"
               >
                 <LogOut className="h-3.5 w-3.5" />
                 <span>Sign out</span>

@@ -24,6 +24,8 @@ import { db } from '@/services/firebase';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { createDocumentVersion } from '@/services/documents';
 import { compileMarkdown } from '@/utils/markdown';
+import BrandLoader from '@/components/brand/BrandLoader';
+import DastavezzIcon from '@/components/brand/DastavezzIcon';
 
 // ---------------------------------------------------------------------------
 // Undo/Redo history entry shape
@@ -671,14 +673,7 @@ export default function WorkspaceDocumentPage() {
   // Loading states
   // ---------------------------------------------------------------------------
   if (loading || (user && docLoading)) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white select-none">
-        <div className="flex flex-col items-center space-y-4">
-          <Sparkles className="h-8 w-8 text-violet-500 animate-spin" />
-          <span className="text-sm font-semibold tracking-wider animate-pulse">Loading Workspace...</span>
-        </div>
-      </div>
-    );
+    return <BrandLoader message="Loading Workspace..." />;
   }
 
   if (!user) return null;
@@ -689,9 +684,7 @@ export default function WorkspaceDocumentPage() {
       <div className="min-h-screen flex flex-col bg-slate-950 text-white font-sans select-none justify-between">
         <header className="border-b border-slate-800/40 bg-slate-900/60 backdrop-blur-lg h-14 flex items-center px-6">
           <div className="flex items-center space-x-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-tr from-violet-600 to-indigo-600 text-white shadow-md">
-              <Sparkles className="h-4 w-4" />
-            </div>
+            <DastavezzIcon size={28} />
             <div>
               <h1 className="bg-gradient-to-r from-violet-400 via-indigo-200 to-white bg-clip-text text-sm font-bold tracking-tight text-transparent">
                 Dastavezz

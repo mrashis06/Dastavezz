@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Sparkles } from 'lucide-react';
+import DastavezzLogo from '@/components/brand/DastavezzLogo';
 
 export default function Footer() {
   return (
@@ -14,12 +14,7 @@ export default function Footer() {
 
           {/* Brand */}
           <div className="space-y-3 max-w-xs">
-            <div className="flex items-center space-x-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-900 dark:bg-white shadow-sm">
-                <Sparkles className="h-3.5 w-3.5 text-white dark:text-slate-900" />
-              </div>
-              <span className="text-sm font-bold text-slate-900 dark:text-white">Dastavezz</span>
-            </div>
+            <DastavezzLogo iconSize={28} showTagline={true} />
             <p className="text-xs text-slate-400 dark:text-slate-600 leading-relaxed">
               AI-powered document workspace for writing, formatting, and exporting professional documents.
             </p>
@@ -51,7 +46,7 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} Dastavezz. All rights reserved.
           </p>
           <p className="text-[11px] text-slate-400 dark:text-slate-600 font-medium flex items-center gap-1.5">
-            Made with <span className="text-red-400">❤️</span> Dastavezz
+            Generated with Dastavezz
           </p>
         </div>
       </div>

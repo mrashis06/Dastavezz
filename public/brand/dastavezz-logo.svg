@@ -1,0 +1,47 @@
+<svg width="400" height="120" viewBox="0 0 400 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logo-d-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563EB" />
+      <stop offset="40%" stop-color="#3B82F6" />
+      <stop offset="75%" stop-color="#7C3AED" />
+      <stop offset="100%" stop-color="#8B5CF6" />
+    </linearGradient>
+
+    <linearGradient id="logo-fold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#F1F5F9" />
+    </linearGradient>
+
+    <linearGradient id="tagline-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#8B5CF6" />
+    </linearGradient>
+
+    <filter id="logo-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#000000" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <!-- D Icon Group shifted to left -->
+  <g transform="translate(10, 10)">
+    <path
+      d="M 24 10 H 54 C 76 10, 90 26, 90 50 C 90 74, 76 90, 54 90 H 24 C 16.268 90, 10 83.732, 10 76 V 24 C 10 16.268, 16.268 10, 24 10 Z M 34 30 V 70 C 34 71.5, 35.5 73, 37 73 H 52 C 64.706 73, 73 63.706, 73 50 C 73 36.294, 64.706 27, 52 27 H 37 C 35.5 27, 34 28.5, 34 30 Z"
+      fill="url(#logo-d-grad)"
+      fill-rule="evenodd"
+    />
+    <path
+      d="M 34 27 L 46 27 C 42.5 33.5, 39 37, 34 40.5 Z"
+      fill="url(#logo-fold-grad)"
+      filter="url(#logo-shadow)"
+    />
+    <rect x="41" y="42" width="18" height="3.5" rx="1.75" fill="#FFFFFF" />
+    <rect x="41" y="49.5" width="22" height="3.5" rx="1.75" fill="#FFFFFF" />
+    <rect x="41" y="57" width="13" height="3.5" rx="1.75" fill="#FFFFFF" />
+  </g>
+
+  <!-- Wordmark Text -->
+  <text x="125" y="68" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif" font-weight="800" font-size="44" fill="#FFFFFF" letter-spacing="-1">Dastavezz</text>
+  
+  <!-- Subtitle Tagline Text -->
+  <text x="127" y="94" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif" font-weight="800" font-size="11" fill="url(#tagline-grad)" letter-spacing="3.5">SMART DOCUMENTS. BETTER IMPACT.</text>
+</svg>
