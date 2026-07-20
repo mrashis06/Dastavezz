@@ -11,7 +11,6 @@ import {
   Eye
 } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
-import TemplateSelector from '@/components/workspace/TemplateSelector';
 import DocumentEditor from '@/components/workspace/DocumentEditor';
 import LivePreview from '@/components/workspace/LivePreview';
 import AIAssistant from '@/components/workspace/AIAssistant';
@@ -913,19 +912,11 @@ export default function WorkspaceDocumentPage() {
         activeCollaborators={activeCollaborators}
       />
 
-      {/* 2. Top Section Template Gallery Selector */}
-      <div className={userRole === 'viewer' ? 'pointer-events-none opacity-50 select-none' : ''}>
-        <TemplateSelector
-          onSelectTemplate={handleSelectTemplate}
-          activeTemplateId={activeTemplateId}
-        />
-      </div>
-
       {/* 3. Main Work Area (Desktop Split Grid + Mobile Tabbed View) */}
       <main className="flex-1 w-full max-w-full mx-auto px-0 lg:px-5 py-0 lg:py-4 flex flex-col overflow-hidden bg-slate-50 dark:bg-[#0a0a0c] pb-16 lg:pb-0">
 
         {/* DESKTOP SPLIT GRID (lg:grid) - 100% UNTOUCHED */}
-        <div className="hidden lg:grid grid-cols-24 gap-6 flex-1 lg:h-[calc(100vh-270px)] lg:min-h-[500px] overflow-hidden">
+        <div className="hidden lg:grid grid-cols-24 gap-6 flex-1 lg:h-[calc(100vh-190px)] lg:min-h-[500px] overflow-hidden">
           {/* Column 1: Document Editor Pane (Span 7) */}
           <div className="lg:col-span-7 flex flex-col h-full overflow-hidden">
             <DocumentEditor
@@ -939,6 +930,8 @@ export default function WorkspaceDocumentPage() {
               canUndo={canUndo}
               canRedo={canRedo}
               readOnly={userRole === 'viewer'}
+              activeTemplateId={activeTemplateId}
+              onSelectTemplate={handleSelectTemplate}
             />
           </div>
 
@@ -1025,6 +1018,8 @@ export default function WorkspaceDocumentPage() {
                 canUndo={canUndo}
                 canRedo={canRedo}
                 readOnly={userRole === 'viewer'}
+                activeTemplateId={activeTemplateId}
+                onSelectTemplate={handleSelectTemplate}
               />
             </div>
           )}

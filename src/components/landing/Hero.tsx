@@ -22,7 +22,7 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative pt-36 pb-16 px-6 overflow-hidden">
+    <section className="relative min-h-[100dvh] flex items-center justify-center pt-24 pb-16 px-6 overflow-hidden">
       {/* Cinematic AI Animated Background */}
       <HeroBackground />
 
@@ -33,14 +33,14 @@ export default function Hero() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.04] mb-8 mx-auto max-w-4xl"
+          className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.15] md:leading-[1.04] mb-8 mx-auto max-w-4xl"
         >
           Write smarter.<br />
           <span className="relative inline-block">
             <span className="relative z-10 text-slate-900 dark:text-white">Ship faster</span>
-            <span className="absolute -bottom-1.5 left-0 right-0 h-[0.2em] bg-gradient-to-r from-violet-500 via-indigo-500 to-blue-500 rounded-full blur-[1px] opacity-80" />
+            <span className="absolute -bottom-1 md:-bottom-1.5 left-0 right-0 h-[4px] md:h-[0.2em] bg-gradient-to-r from-violet-500 via-indigo-500 to-blue-500 rounded-full blur-[1px] opacity-80" />
           </span>{' '}
-          <span className="text-slate-400 dark:text-slate-600 font-bold">with AI.</span>
+          <span className="block mt-1 sm:mt-0 sm:inline text-slate-400 dark:text-slate-650 font-bold">with AI.</span>
         </motion.h1>
 
         {/* Subtitle */}
@@ -48,9 +48,14 @@ export default function Hero() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed max-w-xl mx-auto mb-10 font-normal"
+          className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed max-w-xl mx-auto mb-12 sm:mb-10 font-normal"
         >
-          Dastavezz combines a clean Markdown editor with intelligent AI assistance to help you write, format, and export resumes, reports, business letters, and more—beautifully and effortlessly.
+          <span className="hidden sm:inline">
+            Dastavezz combines a clean Markdown editor with intelligent AI assistance to help you write, format, and export resumes, reports, business letters, and more—beautifully and effortlessly.
+          </span>
+          <span className="sm:hidden">
+            Write, improve, format, and export professional documents with AI.
+          </span>
         </motion.p>
 
         {/* CTAs */}

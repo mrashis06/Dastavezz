@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { motion } from 'framer-motion';
 import { PenLine, Sparkles, CheckCircle2 } from 'lucide-react';
 
 const STEPS = [
@@ -42,7 +43,13 @@ export default function AIWorkflow() {
       <div className="max-w-[1200px] mx-auto">
 
         {/* Section header */}
-        <div className="max-w-lg mb-16">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="max-w-lg mb-16"
+        >
           <p className="text-[11px] font-bold text-violet-600 dark:text-violet-400 uppercase tracking-widest mb-3">How it works</p>
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight mb-4">
             From blank page to polished document
@@ -50,15 +57,19 @@ export default function AIWorkflow() {
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
             A simple three-step flow designed to eliminate the gap between writing and professional output.
           </p>
-        </div>
+        </motion.div>
 
         {/* Steps */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
 
           {STEPS.map((step, i) => (
-            <div
+            <motion.div
               key={i}
-              className="relative group bg-white dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/[0.06] rounded-2xl p-6 hover:border-slate-300 dark:hover:border-white/[0.12] hover:shadow-lg hover:shadow-black/[0.04] transition-all duration-300"
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.5, delay: i * 0.08 }}
+              className="relative group bg-white dark:bg-white/[0.02] border border-slate-200/80 dark:border-white/[0.05] hover:border-violet-500/40 dark:hover:border-violet-500/40 hover:bg-white dark:hover:bg-white/[0.04] hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-violet-500/5 hover:shadow-black/[0.03] transition-all duration-300 rounded-2xl p-6"
             >
               {/* Step number chip */}
               <div className="flex items-center justify-between mb-5">
@@ -69,7 +80,7 @@ export default function AIWorkflow() {
               </div>
 
               {/* Label */}
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-1.5">{step.label}</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-650 mb-1.5">{step.label}</p>
 
               {/* Title */}
               <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-2 leading-snug">{step.title}</h3>
@@ -79,7 +90,7 @@ export default function AIWorkflow() {
 
               {/* Left accent border */}
               <div className={`absolute left-0 top-6 bottom-6 w-0.5 rounded-r-full ${step.bg} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

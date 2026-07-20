@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { motion } from 'framer-motion';
 import { FileText, Eye, Sparkles, Download, Zap, Shield, Layers } from 'lucide-react';
 
 const FEATURES = [
@@ -11,7 +12,7 @@ const FEATURES = [
     description: 'A focused Markdown editor with semantic formatting, toolbar shortcuts, and zero visual clutter. Your words, nothing else.',
     color: 'text-violet-600 dark:text-violet-400',
     bg: 'bg-violet-50 dark:bg-violet-950/40',
-    large: true,
+    large: false,
   },
   {
     icon: <Eye className="h-5 w-5" />,
@@ -75,7 +76,13 @@ export default function Features() {
       <div className="max-w-[1200px] mx-auto">
 
         {/* Section header */}
-        <div className="max-w-lg mb-16">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="max-w-lg mb-16"
+        >
           <p className="text-[11px] font-bold text-violet-600 dark:text-violet-400 uppercase tracking-widest mb-3">Platform</p>
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight mb-4">
             Every tool you need.<br />Nothing you don&apos;t.
@@ -83,24 +90,26 @@ export default function Features() {
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
             Dastavezz is purpose-built for professional document creation — from writing to AI refinement to export.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Bento grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Bento grid matrix */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-slate-200/60 dark:bg-white/[0.06] border border-slate-200/60 dark:border-white/[0.06] rounded-3xl overflow-hidden shadow-sm">
           {FEATURES.map((feature, i) => (
-            <div
+            <motion.div
               key={i}
-              className={`group relative bg-white dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/[0.06] rounded-2xl p-6 hover:border-slate-300 dark:hover:border-white/[0.12] hover:shadow-lg hover:shadow-black/[0.04] transition-all duration-300 ${
-                feature.large ? 'lg:col-span-1' : ''
-              }`}
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.5, delay: i * 0.05 }}
+              className={`group relative bg-white dark:bg-[#0a0a0c] p-8 hover:bg-slate-50/30 dark:hover:bg-[#0f0f12] transition-colors duration-300 ${feature.large ? 'sm:col-span-2 lg:col-span-3' : ''}`}
             >
               {/* Icon */}
-              <div className={`inline-flex items-center justify-center h-10 w-10 rounded-xl ${feature.bg} ${feature.color} mb-5 transition-transform duration-300 group-hover:scale-105`}>
+              <div className={`inline-flex items-center justify-center h-9 w-9 rounded-xl ${feature.bg} ${feature.color} mb-5 transition-transform duration-300 group-hover:scale-105`}>
                 {feature.icon}
               </div>
 
               {/* Label */}
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-1.5">{feature.label}</p>
+              <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1.5">{feature.label}</p>
 
               {/* Headline */}
               <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-2 leading-snug">{feature.headline}</h3>
@@ -108,9 +117,9 @@ export default function Features() {
               {/* Description */}
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{feature.description}</p>
 
-              {/* Hover accent line */}
-              <div className={`absolute bottom-0 left-6 right-6 h-px bg-gradient-to-r from-transparent ${feature.color.replace('text-', 'via-').replace(' dark:text-violet-400', '')} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
-            </div>
+              {/* Subtle top light reflection glow on cell hover */}
+              <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/[0.02] dark:from-violet-500/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+            </motion.div>
           ))}
         </div>
       </div>

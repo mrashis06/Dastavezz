@@ -3,12 +3,11 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Sparkles, ArrowRight } from 'lucide-react';
+import { Sparkles, ArrowRight, ArrowUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 
 import Hero from '@/components/landing/Hero';
-import WorkspacePreview from '@/components/landing/WorkspacePreview';
 import Features from '@/components/landing/Features';
 import Templates from '@/components/landing/Templates';
 import AIWorkflow from '@/components/landing/AIWorkflow';
@@ -25,6 +24,23 @@ export default function LandingPage() {
   const { user } = useAuth();
   const router = useRouter();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 400) {
+        setShowScrollTop(true);
+      } else {
+        setShowScrollTop(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleWorkspaceAccess = (e: React.MouseEvent) => {
     if (!user) {
@@ -69,7 +85,6 @@ export default function LandingPage() {
 
       {/* ── Page Sections ───────────────────────────────────────────────────── */}
       <Hero />
-      <WorkspacePreview />
       <Features />
       <Templates />
       <AIWorkflow />
@@ -81,6 +96,18 @@ export default function LandingPage() {
         onOpenChange={setIsAuthModalOpen}
         onSuccess={() => router.push('/dashboard')}
       />
+
+      {/* Floating Back to Top Button */}
+      {showScrollTop && (
+        <button
+          type="button"
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-950 shadow-xl cursor-pointer hover:scale-110 active:scale-95 transition-all duration-150 border border-slate-250/20 dark:border-white/10"
+          title="Scroll to Top"
+        >
+          <ArrowUp className="h-5 w-5" />
+        </button>
+      )}
     </div>
   );
 }
