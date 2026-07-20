@@ -6,7 +6,7 @@
 ![Gemini](https://img.shields.io/badge/Google%20Gemini-AI-violet?style=flat-square&logo=google)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
-Dastavezz is a document editor designed for writing, restructuring, formatting, and exporting professional documents. It combines a Markdown editor with rule-based and AI-assisted layout transformations, live side-by-side previews, version checkpoints, and multi-format exports.
+Dastavezz is a document workspace for people who want to write well and export fast. You get a clean Markdown editor, AI tools to polish your writing, smart templates to reshape your content into professional formats, and one-click export to PDF, DOCX, or Markdown.
 
 Live Application: [https://dastavezz.online/](https://dastavezz.online/)
 
@@ -26,13 +26,12 @@ Live Application: [https://dastavezz.online/](https://dastavezz.online/)
 
 ## Why Dastavezz?
 
-Most web-based document editors fall into two extremes: complex word processors with overwhelming toolbar buttons, or minimal plain-text Markdown editors that require manual styling work when exporting.
+Most document editors are either too heavy (Google Docs, Word) or too bare (plain Markdown). Dastavezz sits in between — you write freely in Markdown, then apply structure, polish it with AI, and export a clean result without fighting the tool.
 
-Dastavezz was built to solve this middle ground:
-- Write in clean, structured Markdown or import existing text documents.
-- Restructure content into targeted layouts (resumes, formal letters, technical reports) without losing original data.
-- Preview PDF and document outputs side-by-side in real time.
-- Keep track of document revisions automatically.
+- Import a file or start fresh and write in Markdown.
+- Apply a smart template (resume, business letter, project report) without losing a single word.
+- See exactly what your export looks like before you commit to it.
+- Every major change is checkpointed, so you can always go back.
 
 ---
 
@@ -191,7 +190,7 @@ flowchart TD
     C -->|Paste / Type| D[Markdown Workspace]
     C -->|Import File| D
     D --> E[Edit & Format]
-    E --> F[AI Utilities: Improve / Rewrite / Summarize]
+    E --> F[AI Writing Assistant: Optimize / Humanize / Rewrite / Format / Continue / Summarize]
     E --> G[Select Smart Template]
     G --> H[Side-by-Side Transformation Preview]
     H -->|Cancel| D
@@ -204,17 +203,17 @@ flowchart TD
 
 ## Progressive Web App (PWA) & Mobile Standalone
 
-Dastavezz is fully optimized as an installable Progressive Web App (PWA), providing a native, full-screen downloadable experience for both desktop and mobile platforms.
+You can install Dastavezz directly on your phone or desktop and use it like a native app — no app store needed.
 
-- **Standalone Native Experience**: Hides browser search bars, address fields, and desktop wrappers to offer a premium full-screen editorial workspace.
-- **Mobile-First Workspace Layout**: Optimized for screen widths under `1024px`, featuring a responsive bottom navigation bar to switch between the Editor, Live Document Preview, AI Assistant Panel, and Version Snapshot History.
-- **Service Worker Caching**: Integrates a client-side Service Worker (`/sw.js`) that caches core application assets and handles background fetches.
-- **Brand Consistency**: Configured dynamic manifests supporting custom maskable logos and startup icons matching high-resolution mobile retina screens.
+- **No browser clutter**: Once installed, it opens in full-screen mode with no address bars, tabs, or browser UI in the way. Just your document.
+- **Works great on mobile**: On smaller screens, a bottom navigation bar lets you jump between the Editor, Live Preview, AI Assistant, and Version History without any cramped sidebars.
+- **Loads fast, even offline**: A service worker caches the core app shell so Dastavezz loads instantly, even on a slow connection.
+- **Looks native**: Custom app icons and splash screens match the Dastavezz brand — it won't look like a browser shortcut on your home screen.
 
-### Installation Instructions
-- **Desktop (Chrome / Edge / Safari)**: Click the **Download/Install App** shortcut icon in the browser address bar.
-- **Android / Mobile Chrome**: Select **Add to Home Screen** from the browser's menu option.
-- **iOS / Apple Safari**: Tap the **Share** menu button at the bottom of the browser and choose **Add to Home Screen**.
+### How to Install
+- **Desktop (Chrome / Edge / Safari)**: Look for the install icon in the address bar and click it.
+- **Android**: Open the browser menu and tap **Add to Home Screen**.
+- **iOS (Safari)**: Tap the **Share** button at the bottom, then choose **Add to Home Screen**.
 
 ### Mobile Screenshots Reference
 
@@ -232,41 +231,42 @@ Save your mobile screenshot files inside `public/screenshots/mobile/` using the 
 
 ## AI Features
 
-- **Document Style Improvement**: Identifies grammar issues, improves clarity, and enhances formatting while keeping original meaning.
-- **Professional Tone Rewrite**: Restructures content into formal, business-appropriate language.
-- **Executive Summarization**: Extracts key bullet points, executive summaries, and reading metrics from large documents.
-- **Smart Title Suggestion**: Evaluates document context and generates relevant document titles.
-- **Template Transformation Engine**: Maps unformatted document text into structured template layouts (e.g. ATS Resume, Business Letter, Technical Report) without overwriting user data.
+- **Optimize Document**: Runs a full quality pipeline in one click — grammar fixes, better sentence flow, improved readability, cleaner wording, and consistent formatting — without changing what you meant to say.
+- **Humanize**: Rewrites robotic or AI-sounding text to feel natural, fluent, and genuinely human while keeping the tone professional.
+- **Professional Rewrite**: Choose a writing style (Professional, Academic, Business, Technical, Formal, or Concise) and get a full rewrite of your document in that exact voice.
+- **Improve Formatting**: Cleans up the visual structure only — headings, bullet points, spacing, and list alignment — without touching your actual words.
+- **Continue Writing**: Reads your existing document and keeps writing from where you left off, matching your tone and style.
+- **Summarize**: Condenses your document into a Short Summary, Detailed Summary, or Bullet Points — you choose the format before it runs.
 
 ---
 
 ## Smart Templates
 
-- **Professional Resume**: ATS-friendly layout emphasizing contact details, summary, experience bullet points, skills, and education.
-- **Business Letter**: Formal corporate layout with date, sender/recipient metadata, salutation, body paragraphs, and formal closing.
-- **Project Report**: Technical document structure with title header, executive summary blockquote, numbered sections, and conclusions.
+- **Professional Resume** — Restructures your content into a clean, ATS-friendly layout. Contact info, career summary, experience, skills, and education all land in the right place.
+- **Business Letter** — Formats your text into a proper formal letter with date, sender/recipient details, salutation, and a professional closing.
+- **Project Report** — Organises content into a structured technical report with a title header, executive summary, numbered sections, and a conclusion.
 
 ---
 
 ## Export Options
 
-- **Markdown (`.md`)**: Raw formatted Markdown source file.
-- **PDF (`.pdf`)**: Vector PDF rendered from DOM elements matching export font size, margins, and page orientation settings.
-- **DOCX (`.doc` / `.docx`)**: Formatted Word document generated from compiled HTML structures.
+- **Markdown (`.md`)** — Exports the raw Markdown source. Useful for developers, static sites, or keeping a clean backup.
+- **PDF (`.pdf`)** — Renders a print-ready PDF directly from the live preview. Font size, margins, and page orientation all match what you see on screen.
+- **DOCX (`.docx`)** — Exports a Microsoft Word compatible file. Open it, share it, or hand it off — it just works.
 
 ---
 
 ## Authentication
 
-- **Google Sign-In**: Pop-up auth flow with automatic account creation detection.
-- **Email & Password**: Account registration, login, password resets, and verification email dispatch.
-- **Account Linking**: Connect or disconnect Google and Email credentials under user account settings.
+- **Google Sign-In** — One click and you're in. If you don't have an account yet, it creates one automatically.
+- **Email & Password** — Standard sign-up with login, password reset, and email verification support.
+- **Account Linking** — Already signed in with Google but want to add a password too? You can connect and disconnect both from your account settings.
 
 ---
 
 ## Deployment
 
-Dastavezz is deployed using **Firebase App Hosting**, providing automatic Next.js App Router server-side rendering (SSR), API route execution, and static asset delivery.
+Dastavezz runs on **Firebase App Hosting**. It handles server-side rendering, API routes, and static assets automatically — no extra config needed.
 
 To deploy using Firebase CLI:
 
@@ -277,24 +277,23 @@ firebase deploy
 
 ---
 
-## Future Roadmap
+## What's Coming Next
 
-- [ ] Support for additional template categories (Academic Papers, Grants, Cover Letters).
-- [ ] Collaborative editing via WebSockets.
-- [ ] Direct Google Drive and Dropbox integration.
-- [ ] Custom CSS layout theme designer for export customisation.
+- [ ] More template types — Academic Papers, Grants, Cover Letters.
+- [ ] Real-time collaborative editing.
+- [ ] A custom theme designer so you can control exactly how your exports look.
 
 ---
 
 ## Contributing
 
-Contributions are welcome. Please follow these steps:
+PRs are welcome. Here's how to get started:
 
-1. Fork the repository.
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`).
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`).
-4. Push to the branch (`git push origin feature/AmazingFeature`).
-5. Open a Pull Request.
+1. Fork the repo.
+2. Create a branch for your change (`git checkout -b feature/your-feature`).
+3. Commit your work (`git commit -m 'Add your feature'`).
+4. Push it (`git push origin feature/your-feature`).
+5. Open a Pull Request and describe what you changed.
 
 ---
 

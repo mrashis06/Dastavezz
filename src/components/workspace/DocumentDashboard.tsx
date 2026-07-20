@@ -103,7 +103,18 @@ export default function DocumentDashboard({ onOpenDocument }: DocumentDashboardP
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [templateFilter, setTemplateFilter] = useState('all');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('dastavezz_dashboard_view_mode');
+      if (saved === 'grid' || saved === 'list') return saved;
+    }
+    return 'grid';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('dastavezz_dashboard_view_mode', viewMode);
+  }, [viewMode]);
+
   const [sortBy, setSortBy] = useState<'updated' | 'title'>('updated');
 
   const [renameDocId, setRenameDocId] = useState<string | null>(null);
