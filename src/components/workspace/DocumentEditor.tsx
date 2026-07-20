@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useRef } from 'react';
-import { 
+import {
   Upload, Layers, FileSignature, Bold, Italic, Heading, List, ListOrdered, Table, Minus, Scissors, Undo2, Redo2,
-  Sparkles, LayoutGrid, CheckCircle2, Briefcase, Mail, FileSpreadsheet, X 
+  Sparkles, LayoutGrid, CheckCircle2, Briefcase, Mail, FileSpreadsheet, X
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { SmartTemplatesRegistry } from '@/templates';
@@ -402,7 +402,7 @@ export default function DocumentEditor({
           onMouseUp={handleSelectionChange}
           readOnly={readOnly}
           className="w-full h-full px-4 py-3 sm:px-6 sm:py-5 bg-transparent text-sm leading-relaxed text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none resize-none font-mono overflow-y-auto preview-viewport-scrollbar editor-textarea read-only:opacity-75 read-only:cursor-default"
-          placeholder={readOnly ? "No document content exists yet." : "# Write your document outline here in Markdown...&#10;&#10;Use standard headings, bullet lists, tables, and spacing. Choose a layout theme on the right, or let Gemini AI help you rewrite and improve your content tone!"}
+          placeholder={readOnly ? "No document content exists yet." : "Write here in Markdown..."}
         />
 
         {/* ── FLOATING SMART TEMPLATES SELECTOR ── */}
@@ -427,7 +427,7 @@ export default function DocumentEditor({
                     <Sparkles className="h-3.5 w-3.5" />
                     <span>Smart Template Engine</span>
                   </div>
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setIsTemplatesOpen(false)}
                     className="p-1 hover:bg-slate-100 dark:hover:bg-white/[0.06] rounded-full transition cursor-pointer text-slate-450 dark:text-slate-500"
@@ -454,11 +454,10 @@ export default function DocumentEditor({
                           });
                           setIsTemplatesOpen(false);
                         }}
-                        className={`w-full flex items-start space-x-2.5 p-2 rounded-xl text-left border transition-all duration-150 cursor-pointer ${
-                          isActive
+                        className={`w-full flex items-start space-x-2.5 p-2 rounded-xl text-left border transition-all duration-150 cursor-pointer ${isActive
                             ? 'bg-indigo-50/20 dark:bg-indigo-950/15 border-indigo-400/60 dark:border-indigo-400/40 shadow-sm text-indigo-950 dark:text-white'
                             : 'bg-slate-50 dark:bg-white/[0.03] border-slate-200 dark:border-white/[0.06] hover:bg-slate-100/50 dark:hover:bg-white/[0.06] hover:border-slate-300 dark:hover:border-white/[0.1] text-slate-700 dark:text-slate-300'
-                        }`}
+                          }`}
                       >
                         <div className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 ${meta.iconBg}`}>
                           {meta.icon}
@@ -487,7 +486,7 @@ export default function DocumentEditor({
             {isTemplatesOpen && (
               <>
                 {/* Backdrop overlay */}
-                <div 
+                <div
                   onClick={() => setIsTemplatesOpen(false)}
                   className="sm:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40 animate-in fade-in duration-200"
                 />
@@ -495,14 +494,14 @@ export default function DocumentEditor({
                 <div className="sm:hidden fixed bottom-0 left-0 right-0 rounded-t-3xl border-t border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#18181d] shadow-2xl z-50 p-5 pb-8 flex flex-col animate-in slide-in-from-bottom duration-300 ease-out max-h-[75vh]">
                   {/* Top Drag Handle */}
                   <div className="w-12 h-1 bg-slate-300 dark:bg-white/20 rounded-full mx-auto mb-4 shrink-0" />
-                  
+
                   {/* Drawer Header */}
                   <div className="flex items-center justify-between mb-4 shrink-0">
                     <div className="flex items-center space-x-2">
                       <Sparkles className="h-4.5 w-4.5 text-indigo-500 animate-pulse" />
                       <span className="text-xs font-extrabold uppercase tracking-widest text-slate-900 dark:text-white">Smart Templates</span>
                     </div>
-                    <button 
+                    <button
                       type="button"
                       onClick={() => setIsTemplatesOpen(false)}
                       className="p-1.5 hover:bg-slate-100 dark:hover:bg-white/[0.06] rounded-full transition cursor-pointer text-slate-450 dark:text-slate-500"
@@ -510,11 +509,11 @@ export default function DocumentEditor({
                       <X className="h-4.5 w-4.5" />
                     </button>
                   </div>
-                  
+
                   <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium mb-3 select-none">
                     Select a template to restructure and format your document.
                   </p>
-                  
+
                   {/* Drawer Cards List */}
                   <div className="flex flex-col space-y-2 overflow-y-auto no-scrollbar pr-0.5">
                     {SmartTemplatesRegistry.templates.map((template) => {
@@ -534,11 +533,10 @@ export default function DocumentEditor({
                             });
                             setIsTemplatesOpen(false);
                           }}
-                          className={`w-full flex items-start space-x-3.5 p-3 rounded-2xl border text-left cursor-pointer transition-all duration-150 ${
-                            isActive
+                          className={`w-full flex items-start space-x-3.5 p-3 rounded-2xl border text-left cursor-pointer transition-all duration-150 ${isActive
                               ? 'bg-indigo-50/20 dark:bg-indigo-950/15 border-indigo-400/60 dark:border-indigo-400/40 shadow-sm text-indigo-950 dark:text-white'
                               : 'bg-slate-50 dark:bg-white/[0.03] border-slate-200 dark:border-white/[0.06] hover:bg-slate-100/50 dark:hover:bg-white/[0.06] text-slate-700 dark:text-slate-350'
-                          }`}
+                            }`}
                         >
                           <div className={`h-8 w-8 rounded-xl flex items-center justify-center shrink-0 ${meta.iconBg}`}>
                             {meta.icon}
@@ -581,10 +579,6 @@ export default function DocumentEditor({
           <span>
             Reading Time: <strong className="text-foreground">{Math.max(1, Math.ceil(wordCount / 200))} min</strong>
           </span>
-        </div>
-        <div className="flex items-center space-x-1.5 text-[10px] bg-secondary/40 px-2 py-0.5 rounded border border-border/60 font-mono text-indigo-600 dark:text-indigo-400">
-          <Layers className="h-3.5 w-3.5" />
-          <span>Markdown Active</span>
         </div>
       </div>
     </div>

@@ -102,10 +102,10 @@ export default function ExportControls({
         await exportToPDF('pdf-export-content', documentTitle, settings);
       } else {
         const compiledHtml = compileMarkdownToHtml(documentContent);
-        
+
         const fontName = settings.theme === 'minimal' ? 'Courier New' : settings.theme === 'academic' ? 'Georgia' : 'Arial';
         const fontSizePt = settings.fontSize === 'sm' ? '10.5pt' : settings.fontSize === 'lg' ? '13.5pt' : '11.5pt';
-        
+
         const docHtml = `
           <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
           <head>
@@ -250,12 +250,12 @@ export default function ExportControls({
                   onChange={(e) => updateSetting('pageSize', e.target.value as ExportSettings['pageSize'])}
                   className="w-full bg-slate-50 dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.07] text-sm font-semibold text-slate-800 dark:text-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-violet-500/30 cursor-pointer transition"
                 >
-                  <option value="A4">A4 — 210 × 297 mm</option>
-                  <option value="Letter">Letter — 8.5 × 11 in</option>
-                  <option value="Legal">Legal — 8.5 × 14 in</option>
-                  <option value="A3">A3 — 297 × 420 mm</option>
-                  <option value="A5">A5 — 148 × 210 mm</option>
-                  <option value="B5">B5 — 176 × 250 mm</option>
+                  <option value="A4" className="bg-white dark:bg-[#1a1a20] text-slate-900 dark:text-slate-100">A4 — 210 × 297 mm</option>
+                  <option value="Letter" className="bg-white dark:bg-[#1a1a20] text-slate-900 dark:text-slate-100">Letter — 8.5 × 11 in</option>
+                  <option value="Legal" className="bg-white dark:bg-[#1a1a20] text-slate-900 dark:text-slate-100">Legal — 8.5 × 14 in</option>
+                  <option value="A3" className="bg-white dark:bg-[#1a1a20] text-slate-900 dark:text-slate-100">A3 — 297 × 420 mm</option>
+                  <option value="A5" className="bg-white dark:bg-[#1a1a20] text-slate-900 dark:text-slate-100">A5 — 148 × 210 mm</option>
+                  <option value="B5" className="bg-white dark:bg-[#1a1a20] text-slate-900 dark:text-slate-100">B5 — 176 × 250 mm</option>
                 </select>
               </div>
 
@@ -267,11 +267,10 @@ export default function ExportControls({
                     <button
                       key={orient}
                       onClick={() => updateSetting('orientation', orient)}
-                      className={`flex items-center justify-center space-x-2 py-2.5 rounded-xl border text-xs font-semibold transition cursor-pointer ${
-                        settings.orientation === orient
+                      className={`flex items-center justify-center space-x-2 py-2.5 rounded-xl border text-xs font-semibold transition cursor-pointer ${settings.orientation === orient
                           ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-950 border-slate-900 dark:border-white shadow-sm'
                           : 'bg-white dark:bg-white/[0.04] border-slate-200 dark:border-white/[0.07] text-slate-500 dark:text-slate-450 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.07]'
-                      }`}
+                        }`}
                     >
                       {orient === 'portrait' ? (
                         <AlignCenter className="h-3.5 w-3.5" />
@@ -296,11 +295,10 @@ export default function ExportControls({
                   <button
                     key={margin}
                     onClick={() => updateSetting('margins', margin)}
-                    className={`py-2 rounded-xl text-xs font-semibold capitalize transition cursor-pointer border ${
-                      settings.margins === margin
+                    className={`py-2 rounded-xl text-xs font-semibold capitalize transition cursor-pointer border ${settings.margins === margin
                         ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-950 border-slate-900 dark:border-white shadow-sm'
                         : 'bg-white dark:bg-white/[0.04] border-slate-200 dark:border-white/[0.07] text-slate-500 dark:text-slate-450 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.07]'
-                    }`}
+                      }`}
                   >
                     {margin === 'standard' ? 'Normal' : margin}
                   </button>
@@ -363,11 +361,10 @@ export default function ExportControls({
                     <button
                       key={id}
                       onClick={() => updateSetting('theme', id)}
-                      className={`flex flex-col items-center py-2.5 rounded-xl border text-xs font-semibold transition cursor-pointer ${
-                        settings.theme === id
+                      className={`flex flex-col items-center py-2.5 rounded-xl border text-xs font-semibold transition cursor-pointer ${settings.theme === id
                           ? 'bg-slate-900 dark:bg-violet-600 text-white dark:text-white border-slate-900 dark:border-violet-600 shadow-sm'
                           : 'bg-slate-50 dark:bg-white/[0.04] border-slate-200 dark:border-white/[0.07] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.07]'
-                      }`}
+                        }`}
                     >
                       <span>{label}</span>
                       <span className={`text-[8px] font-normal mt-0.5 ${settings.theme === id ? 'opacity-70' : 'text-muted-foreground/60'}`}>{detail}</span>
@@ -388,11 +385,10 @@ export default function ExportControls({
                     <button
                       key={id}
                       onClick={() => updateSetting('fontSize', id)}
-                      className={`flex flex-col items-center py-2.5 rounded-xl border text-xs font-semibold transition cursor-pointer ${
-                        settings.fontSize === id
+                      className={`flex flex-col items-center py-2.5 rounded-xl border text-xs font-semibold transition cursor-pointer ${settings.fontSize === id
                           ? 'bg-slate-900 dark:bg-violet-600 text-white dark:text-white border-slate-900 dark:border-violet-600 shadow-sm'
                           : 'bg-slate-50 dark:bg-white/[0.04] border-slate-200 dark:border-white/[0.07] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.07]'
-                      }`}
+                        }`}
                     >
                       <span>{label}</span>
                       <span className={`text-[8px] font-normal mt-0.5 ${settings.fontSize === id ? 'opacity-70' : 'text-muted-foreground/60'}`}>{detail}</span>

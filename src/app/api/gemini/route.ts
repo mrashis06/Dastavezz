@@ -67,7 +67,7 @@ ${docContent}
         };
 
         const targetContent = ctx.selectedText && ctx.selectedText.trim() ? ctx.selectedText : ctx.content;
-        
+
         let templateGuideline = "Generate concise and professional document titles.";
         if (ctx.template === "professional_resume") {
             templateGuideline = "Generate ATS-friendly job titles suitable for a professional resume header.";

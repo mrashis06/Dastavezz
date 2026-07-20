@@ -4,16 +4,17 @@ import { GeminiResponse, AIDocumentContext } from '../types';
  * Helper function to post request to /api/gemini route.
  */
 async function postToGeminiApi(
-  action: 'improve' | 'rewrite' | 'summarize' | 'title', 
+  action: 'improve' | 'rewrite' | 'summarize' | 'title' | 'custom', 
   text: string,
-  context?: AIDocumentContext
+  context?: AIDocumentContext,
+  command?: string
 ): Promise<GeminiResponse> {
   const response = await fetch('/api/gemini', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ action, text, context }),
+    body: JSON.stringify({ action, text, context, command }),
   });
 
   if (!response.ok) {
@@ -116,4 +117,15 @@ export const generateTitle = async (text: string): Promise<string> => {
     const titleWords = words.slice(0, 3).join('_');
     return titleWords.substring(0, 24) || 'Untitled_Document';
   }
+};
+
+/**
+ * Function to run custom instructions via Gemini API.
+ */
+export const runCustomCommand = async (
+  text: string, 
+  command: string, 
+  context?: AIDocumentContext
+): Promise<GeminiResponse> => {
+  return postToGeminiApi('custom', text, context, command);
 };

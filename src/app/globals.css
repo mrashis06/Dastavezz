@@ -457,3 +457,12 @@
 .dark .react-international-phone-country-selector-dropdown-list-item:hover {
   background-color: rgba(255, 255, 255, 0.05) !important;
 }
+
+/* Custom scrollbar hiding helper */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+}
+.no-scrollbar {
+  -ms-overflow-style: none !important;  /* IE and Edge */
+  scrollbar-width: none !important;  /* Firefox */
+}

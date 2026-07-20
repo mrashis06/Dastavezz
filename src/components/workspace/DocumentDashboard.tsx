@@ -102,6 +102,7 @@ export default function DocumentDashboard({ onOpenDocument }: DocumentDashboardP
   const [documents, setDocuments] = useState<DBDocument[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [templateFilter, setTemplateFilter] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'updated' | 'title'>('updated');
 
@@ -411,6 +412,11 @@ export default function DocumentDashboard({ onOpenDocument }: DocumentDashboardP
 
   const filteredDocs = documents
     .filter((doc) => doc.title.toLowerCase().includes(searchQuery.toLowerCase()))
+    .filter((doc) => {
+      if (templateFilter === 'all') return true;
+      if (templateFilter === 'blank') return doc.activeTemplateId === null;
+      return doc.activeTemplateId === templateFilter;
+    })
     .sort((a, b) => {
       if (sortBy === 'title') return a.title.localeCompare(b.title);
       const timeA = a.updatedAt?.seconds ?? 0;
@@ -524,6 +530,56 @@ export default function DocumentDashboard({ onOpenDocument }: DocumentDashboardP
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Mobile Dropdown Selector (visible on mobile only) */}
+        <div className="block md:hidden mb-6">
+          <div className="relative">
+            <select
+              value={templateFilter}
+              onChange={(e) => setTemplateFilter(e.target.value)}
+              className="w-full h-11 px-4 pr-10 text-xs font-semibold bg-white dark:bg-[#111114] border border-slate-200 dark:border-white/[0.08] rounded-xl shadow-sm text-slate-800 dark:text-slate-200 focus:outline-none appearance-none cursor-pointer"
+            >
+              <option value="all" className="bg-white dark:bg-[#111114]">All Documents</option>
+              <option value="project-report" className="bg-white dark:bg-[#111114]">Project Reports</option>
+              <option value="resume" className="bg-white dark:bg-[#111114]">Resumes</option>
+              <option value="business-letter" className="bg-white dark:bg-[#111114]">Business Letters</option>
+              <option value="cover-letter" className="bg-white dark:bg-[#111114]">Cover Letters</option>
+              <option value="blank" className="bg-white dark:bg-[#111114]">Blank Documents</option>
+            </select>
+            {/* Custom dropdown caret indicator */}
+            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 dark:text-slate-500">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop Filter Pills (visible on desktop only) */}
+        <div className="hidden md:flex items-center space-x-2 pb-3 mb-6 select-none border-b border-slate-200/50 dark:border-white/[0.05]">
+          <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500 mr-2 shrink-0">Filter:</span>
+          {[
+            { id: 'all', label: 'All Documents' },
+            { id: 'project-report', label: 'Project Reports' },
+            { id: 'resume', label: 'Resumes' },
+            { id: 'business-letter', label: 'Business Letters' },
+            { id: 'cover-letter', label: 'Cover Letters' },
+            { id: 'blank', label: 'Blank Docs' }
+          ].map((pill) => {
+            const isActive = templateFilter === pill.id;
+            return (
+              <button
+                key={pill.id}
+                onClick={() => setTemplateFilter(pill.id)}
+                className={`text-xs font-semibold px-3.5 py-1.5 rounded-full transition-all duration-200 border cursor-pointer select-none shrink-0 ${
+                  isActive
+                    ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 border-slate-900 dark:border-white shadow-sm'
+                    : 'bg-white text-slate-650 hover:text-slate-900 hover:bg-slate-50 dark:bg-[#111114] dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/[0.04] border-slate-200 dark:border-white/[0.08]'
+                }`}
+              >
+                {pill.label}
+              </button>
+            );
+          })}
         </div>
 
         {/* ── Document area ────────────────────────────────────────────────── */}
@@ -771,10 +827,10 @@ export default function DocumentDashboard({ onOpenDocument }: DocumentDashboardP
                         <Clock className="h-3 w-3" />
                         <span>{formatTime(doc.updatedAt)}</span>
                       </div>
-                      <div className="flex items-center space-x-2 text-[10px] text-slate-300 font-medium">
-                        <span>{words}w</span>
+                      <div className="flex items-center space-x-2 text-[10px] text-slate-400 dark:text-slate-500 font-semibold">
+                        <span>{words} words</span>
                         <span>·</span>
-                        <span>{lines}L</span>
+                        <span>{lines} lines</span>
                       </div>
                     </div>
                   </div>
@@ -830,8 +886,8 @@ export default function DocumentDashboard({ onOpenDocument }: DocumentDashboardP
                     </div>
                   </div>
                   <div className="flex items-center space-x-4 shrink-0 ml-4">
-                    <div className="hidden sm:flex items-center space-x-3 text-[10px] text-slate-400 font-medium">
-                      <span>{words}w</span>
+                    <div className="hidden sm:flex items-center space-x-3 text-[10px] text-slate-450 font-semibold">
+                      <span>{words} words</span>
                       <span className="flex items-center space-x-1">
                         <Clock className="h-3 w-3" />
                         <span>{formatTime(doc.updatedAt)}</span>
