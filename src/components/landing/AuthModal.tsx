@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Sparkles, Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
+import { Sparkles, Mail, Lock, Loader2, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { toast } from '@/utils/toast';
 import { showEmailLoginToast, showGoogleAuthToast } from '@/utils/authToasts';
 import { useRouter } from 'next/navigation';
@@ -30,6 +30,7 @@ export default function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModal
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // Reset form on close
@@ -37,6 +38,7 @@ export default function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModal
     if (!isOpen) {
       setEmail('');
       setPassword('');
+      setShowPassword(false);
       setLoading(false);
     }
   }, [isOpen]);
@@ -118,16 +120,26 @@ export default function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModal
               <Lock className="h-3 w-3 mr-1" />
               Password
             </label>
-            <Input
-              id="login-password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
-              className="h-10 px-3 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl focus-visible:ring-violet-500/20 text-slate-900 dark:text-white"
-              required
-            />
+            <div className="relative">
+              <Input
+                id="login-password"
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
+                className="h-10 pl-3 pr-10 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl focus-visible:ring-violet-500/20 text-slate-900 dark:text-white w-full"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                disabled={loading}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 cursor-pointer p-0.5 rounded focus:outline-none"
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
           </div>
 
           <Button

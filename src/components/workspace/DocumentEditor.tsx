@@ -455,8 +455,8 @@ export default function DocumentEditor({
                           setIsTemplatesOpen(false);
                         }}
                         className={`w-full flex items-start space-x-2.5 p-2 rounded-xl text-left border transition-all duration-150 cursor-pointer ${isActive
-                            ? 'bg-indigo-50/20 dark:bg-indigo-950/15 border-indigo-400/60 dark:border-indigo-400/40 shadow-sm text-indigo-950 dark:text-white'
-                            : 'bg-slate-50 dark:bg-white/[0.03] border-slate-200 dark:border-white/[0.06] hover:bg-slate-100/50 dark:hover:bg-white/[0.06] hover:border-slate-300 dark:hover:border-white/[0.1] text-slate-700 dark:text-slate-300'
+                          ? 'bg-indigo-50/20 dark:bg-indigo-950/15 border-indigo-400/60 dark:border-indigo-400/40 shadow-sm text-indigo-950 dark:text-white'
+                          : 'bg-slate-50 dark:bg-white/[0.03] border-slate-200 dark:border-white/[0.06] hover:bg-slate-100/50 dark:hover:bg-white/[0.06] hover:border-slate-300 dark:hover:border-white/[0.1] text-slate-700 dark:text-slate-300'
                           }`}
                       >
                         <div className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 ${meta.iconBg}`}>
@@ -534,8 +534,8 @@ export default function DocumentEditor({
                             setIsTemplatesOpen(false);
                           }}
                           className={`w-full flex items-start space-x-3.5 p-3 rounded-2xl border text-left cursor-pointer transition-all duration-150 ${isActive
-                              ? 'bg-indigo-50/20 dark:bg-indigo-950/15 border-indigo-400/60 dark:border-indigo-400/40 shadow-sm text-indigo-950 dark:text-white'
-                              : 'bg-slate-50 dark:bg-white/[0.03] border-slate-200 dark:border-white/[0.06] hover:bg-slate-100/50 dark:hover:bg-white/[0.06] text-slate-700 dark:text-slate-350'
+                            ? 'bg-indigo-50/20 dark:bg-indigo-950/15 border-indigo-400/60 dark:border-indigo-400/40 shadow-sm text-indigo-950 dark:text-white'
+                            : 'bg-slate-50 dark:bg-white/[0.03] border-slate-200 dark:border-white/[0.06] hover:bg-slate-100/50 dark:hover:bg-white/[0.06] text-slate-700 dark:text-slate-350'
                             }`}
                         >
                           <div className={`h-8 w-8 rounded-xl flex items-center justify-center shrink-0 ${meta.iconBg}`}>

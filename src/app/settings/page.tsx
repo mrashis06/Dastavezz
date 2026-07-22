@@ -18,6 +18,8 @@ import {
   Link as LinkIcon,
   CheckCircle,
   AlertCircle,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { toast } from '@/utils/toast';
 import { updatePassword, sendEmailVerification } from 'firebase/auth';
@@ -47,11 +49,14 @@ export default function SettingsPage() {
   const [emailToLink, setEmailToLink] = useState('');
   const [passwordToLink, setPasswordToLink] = useState('');
   const [showEmailLinkForm, setShowEmailLinkForm] = useState(false);
+  const [showLinkPassword, setShowLinkPassword] = useState(false);
   const [linkingLoading, setLinkingLoading] = useState(false);
 
   // ── Security state ────────────────────────────────────────────────────────
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
 
   const [minLoadingComplete, setMinLoadingComplete] = useState(false);
@@ -307,31 +312,51 @@ export default function SettingsPage() {
                       <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                         New Password
                       </label>
-                      <Input
-                        id="settings-newpass"
-                        type="password"
-                        placeholder="••••••••"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        disabled={passwordLoading}
-                        className="h-10 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl focus-visible:ring-violet-500/20"
-                        required
-                      />
+                      <div className="relative">
+                        <Input
+                          id="settings-newpass"
+                          type={showNewPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          disabled={passwordLoading}
+                          className="h-10 pl-3 pr-10 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl focus-visible:ring-violet-500/20 w-full"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                          disabled={passwordLoading}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 cursor-pointer p-0.5 rounded focus:outline-none"
+                        >
+                          {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
                     </div>
                     <div className="flex flex-col space-y-1.5">
                       <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                         Confirm
                       </label>
-                      <Input
-                        id="settings-confirmpass"
-                        type="password"
-                        placeholder="••••••••"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        disabled={passwordLoading}
-                        className="h-10 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl focus-visible:ring-violet-500/20"
-                        required
-                      />
+                      <div className="relative">
+                        <Input
+                          id="settings-confirmpass"
+                          type={showConfirmPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          disabled={passwordLoading}
+                          className="h-10 pl-3 pr-10 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl focus-visible:ring-violet-500/20 w-full"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          disabled={passwordLoading}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 cursor-pointer p-0.5 rounded focus:outline-none"
+                        >
+                          {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
                     </div>
                   </div>
                   <div className="pt-2 flex justify-end">
@@ -456,15 +481,25 @@ export default function SettingsPage() {
                         className="h-9 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-lg text-slate-900 dark:text-white"
                         required
                       />
-                      <Input
-                        type="password"
-                        placeholder="Create password"
-                        value={passwordToLink}
-                        onChange={(e) => setPasswordToLink(e.target.value)}
-                        disabled={linkingLoading}
-                        className="h-9 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-lg text-slate-900 dark:text-white"
-                        required
-                      />
+                      <div className="relative">
+                        <Input
+                          type={showLinkPassword ? "text" : "password"}
+                          placeholder="Create password"
+                          value={passwordToLink}
+                          onChange={(e) => setPasswordToLink(e.target.value)}
+                          disabled={linkingLoading}
+                          className="h-9 pl-3 pr-10 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-lg text-slate-900 dark:text-white w-full"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowLinkPassword(!showLinkPassword)}
+                          disabled={linkingLoading}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 cursor-pointer p-0.5 rounded focus:outline-none"
+                        >
+                          {showLinkPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                        </button>
+                      </div>
                       <Button
                         type="submit"
                         disabled={linkingLoading}
